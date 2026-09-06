@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estrategia Galáctica</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="img/logo-001.jpg">
+    <style>
+        /* Estilos generales del cuerpo */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0a0a1a; /* Fondo muy oscuro, casi negro */
+            color: #e0e0f0; /* Texto claro azulado */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Alinear al inicio para dejar espacio en la parte superior */
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            background-image: url('https://placehold.co/1920x1080/050515/e0e0f0?text=Nebulosa+Galáctica'); /* [Image of Galactic Nebula] */
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: multiply;
+            background-color: #050515; /* Superposición oscura para el fondo */
+            overflow-y: auto;
+        }
+
+        /* Contenedor principal del juego */
+        .game-container {
+            background-color: rgba(10, 10, 20, 0.9); /* Fondo semitransparente oscuro */
+            border: 2px solid #00c0ff; /* Borde azul brillante */
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 1200px;
+            width: 100%;
+            box-shadow: 0 0 40px rgba(0, 192, 255, 0.4); /* Sombra azul brillante */
+            display: grid;
+            grid-template-columns: 2fr 1fr; /* Una columna para el mapa, otra para el panel */
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        /* Título del juego */
+        h1 {
+            font-family: 'Orbitron', sans-serif; /* Fuente futurista para el título */
+            color: #00e0ff; /* Azul cian brillante */
+            text-align: center;
+            margin-bottom: 25px;
+            text-shadow: 0 0 18px rgba(0, 224, 255, 0.7);
+            font-size: 2.8em;
+            grid-column: 1 / -1; /* Ocupar ambas columnas */
+        }
+
+        /* Área del mapa galáctico */
+        .galaxy-map {
+            background-color: #050510; /* Fondo del mapa */
+            border: 1px solid #0080ff;
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 400px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr); /* Mapa de 3x3 planetas, ajustable */
+            gap: 20px;
+            position: relative; /* Para posicionamiento de líneas de conexión */
+            box-shadow: inset 0 0 15px rgba(0, 128, 255, 0.3);
+        }
+
+        /* Contenedor para el panel de información/acciones */
+        .info-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Estilo para secciones dentro del panel */
+        .panel-section {
+            background-color: #1a1a3a;
+            border: 1px solid #0080ff;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 0 10px rgba(0, 128, 255, 0.2);
+        }
+
+        .panel-section h3 {
+            font-family: 'Orbitron', sans-serif;
+            color: #00e0ff;
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-align: center;
+            font-size: 1.3em;
+        }
+
+        /* Mensajes del juego */
+        #gameMessages {
+            height: 150px;
+            overflow-y: auto;
+            background-color: #050510;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 0.9em;
+            color: #a0a0c0;
+        }
+
+        #gameMessages p {
+            margin: 5px 0;
+            line-height: 1.4;
+        }
+
+        .message-turn { color: #00e0ff; font-weight: bold; }
+        .message-info { color: #80c0ff; }
+        .message-error { color: #ff6060; font-weight: bold; }
+        .message-combat { color: #ffcc00; font-weight: bold; }
+        .message-win { color: #00ff00; font-weight: bold; font-size: 1.1em; }
+        .message-advisor { color: #9B59B6; font-weight: bold; } /* Color para mensajes del asesor */
+        .message-lore { color: #D35400; font-style: italic; } /* Color para mensajes de lore */
+
+
+        /* Estilo para los planetas en el mapa */
+        .planet {
+            width: 80px;
+            height: 80px;
+            background-color: #303050;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid #0080ff;
+            box-shadow: 0 0 15px rgba(0, 128, 255, 0.5);
+            transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+            position: relative; /* Para el texto del nombre del planeta */
+        }
+
+        .planet:hover {
+            transform: scale(1.05);
+            border-color: #00e0ff;
+            box-shadow: 0 0 25px rgba(0, 224, 255, 0.7);
+        }
+
+        .planet.selected {
+            border-color: #ffcc00; /* Borde amarillo al seleccionar */
+            box-shadow: 0 0 25px rgba(255, 204, 0, 0.8);
+            transform: scale(1.1);
+        }
+
+        /* Color de los planetas según el propietario */
+        .planet.player-0 { background-color: #006600; border-color: #00ff00; } /* Verde para Jugador 0 */
+        .planet.player-1 { background-color: #660000; border-color: #ff0000; } /* Rojo para Jugador 1 */
+        .planet.neutral { background-color: #303050; border-color: #808080; } /* Gris para neutral */
+
+        .planet-name {
+            font-size: 0.8em;
+            margin-top: 5px;
+            font-weight: bold;
+            color: #e0e0f0;
+        }
+
+        .planet-fleet {
+            font-size: 0.7em;
+            color: #c0c0d0;
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background-color: rgba(0,0,0,0.5);
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+
+        /* Líneas de conexión entre planetas (ejemplo estático, idealmente dinámico con JS) */
+        /* Para un mapa en cuadrícula, estas líneas se pueden abstraer */
+        /* Si el mapa es más complejo, se dibujarían con SVG o Canvas */
+
+        /* Información del planeta seleccionado */
+        #selectedPlanetInfo p {
+            margin: 5px 0;
+        }
+        #selectedPlanetInfo strong {
+            color: #00e0ff;
+        }
+
+        /* Botones de acción */
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        button {
+            background-color: #005080; /* Azul oscuro */
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 80, 128, 0.4);
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            background-color: #0070b0; /* Azul más claro al pasar el ratón */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 112, 176, 0.6);
+        }
+
+        button:active {
+            background-color: #003060; /* Azul más oscuro al hacer clic */
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(0, 48, 96, 0.5);
+        }
+
+        button:disabled {
+            background-color: #303040;
+            color: #808090;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Recursos del jugador */
+        #playerResources {
+            display: flex;
+            justify-content: space-around;
+            font-size: 1.1em;
+            font-family: 'Orbitron', sans-serif;
+            color: #00e0ff;
+            margin-bottom: 15px;
+        }
+
+        #playerResources div {
+            text-align: center;
+            padding: 5px 10px;
+            border: 1px solid #0080ff;
+            border-radius: 5px;
+            background-color: #1a1a3a;
+        }
+
+        /* Media queries para responsividad */
+        @media (max-width: 900px) {
+            .game-container {
+                grid-template-columns: 1fr; /* Columnas apiladas en pantallas pequeñas */
+                padding: 15px;
+                gap: 15px;
+            }
+
+            h1 {
+                font-size: 2em;
+            }
+
+            .galaxy-map {
+                grid-template-columns: repeat(2, 1fr); /* 2x3 en móviles */
+                min-height: 300px;
+            }
+
+            .planet {
+                width: 70px;
+                height: 70px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .galaxy-map {
+                grid-template-columns: 1fr; /* 1x6 en móviles muy pequeños */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Estrategia Galáctica</h1>
+        <div class="galaxy-map" id="galaxyMap"></div>
+        <div class="info-panel">
+            <div class="panel-section">
+                <h3>Recursos del Jugador Actual</h3>
+                <div id="playerResources">
+                    <div id="minerals">Minerales: <span>0</span></div>
+                    <div id="energy">Energía: <span>0</span></div>
+                    <div id="ships">Naves: <span>0</span></div>
+                </div>
+                <button onclick="game.endTurn()" id="endTurnButton">Terminar Turno</button>
+            </div>
+            <div class="panel-section">
+                <h3>Planeta Seleccionado</h3>
+                <div id="selectedPlanetInfo">
+                    <p>Selecciona un planeta en el mapa.</p>
+                </div>
+                <div class="action-buttons">
+                    <button onclick="game.buildShip()" id="buildShipButton" disabled>Construir Nave (10M, 5E)</button>
+                    <button onclick="game.moveFleet()" id="moveFleetButton" disabled>Mover Flota</button>
+                    <button onclick="game.getAdvisorAdvice()" id="advisorButton">Preguntar al Asesor ✨</button>
+                </div>
+            </div>
+            <div class="panel-section">
+                <h3>Mensajes del Juego</h3>
+                <div id="gameMessages">
+                    <p class="message-info">¡Bienvenido a Estrategia Galáctica!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Objeto principal del juego
+        const game = {
+            players: [
+                { id: 0, name: 'Jugador 1', color: 'player-0', minerals: 100, energy: 50, totalShips: 0 },
+                { id: 1, name: 'Jugador 2', color: 'player-1', minerals: 100, energy: 50, totalShips: 0 }
+            ],
+            planets: [],
+            currentPlayerIndex: 0,
+            selectedPlanet: null,
+            targetPlanet: null,
+            turn: 1,
+            galaxyMapElement: document.getElementById('galaxyMap'),
+            gameMessagesElement: document.getElementById('gameMessages'),
+            mineralsDisplay: document.querySelector('#minerals span'),
+            energyDisplay: document.querySelector('#energy span'),
+            shipsDisplay: document.querySelector('#ships span'),
+            selectedPlanetInfo: document.getElementById('selectedPlanetInfo'),
+            buildShipButton: document.getElementById('buildShipButton'),
+            moveFleetButton: document.getElementById('moveFleetButton'),
+            endTurnButton: document.getElementById('endTurnButton'),
+            advisorButton: document.getElementById('advisorButton'),
+
+            // Nueva propiedad para dificultad y para saber si el jugador 2 es bot
+            difficulty: 'normal', // Puede ser 'facil', 'normal', 'dificil'
+            isBot: [false, true], // Jugador 2 es bot
+
+            // Inicializa el juego
+            initializeGame() {
+                this.planets = this.generateGalaxyMap();
+                this.renderMap();
+                this.updatePlayerResourcesDisplay();
+                this.addMessage(`¡Comienza la partida! Turno ${this.turn} - ${this.currentPlayer.name}`, 'message-turn');
+                this.updateActionButtons();
+            },
+
+            // Genera un mapa galáctico simple (cuadrícula de 3x3)
+            generateGalaxyMap() {
+                const map = [];
+                const numRows = 3;
+                const numCols = 3;
+                let planetIdCounter = 0;
+
+                for (let r = 0; r < numRows; r++) {
+                    for (let c = 0; c < numCols; c++) {
+                        const planet = {
+                            id: `P${planetIdCounter}`,
+                            name: `Planeta ${planetIdCounter}`,
+                            owner: null, // Neutral inicialmente
+                            fleet: 0,
+                            mineralsProduction: 5,
+                            energyProduction: 3,
+                            x: c, // Posición en la cuadrícula
+                            y: r,
+                            connections: [], // Conexiones a planetas adyacentes
+                            loreGenerated: false, // Nuevo: para controlar si se ha generado lore
+                            loreText: '' // Nuevo: para almacenar el lore del planeta
+                        };
+
+                        // Asignar planetas iniciales a los jugadores
+                        if (planetIdCounter === 0) { // Planeta inicial para Jugador 1
+                            planet.owner = this.players[0].id;
+                            planet.fleet = 5;
+                            this.players[0].totalShips += 5;
+                        } else if (planetIdCounter === (numRows * numCols) - 1) { // Planeta inicial para Jugador 2 (esquina opuesta)
+                            planet.owner = this.players[1].id;
+                            planet.fleet = 5;
+                            this.players[1].totalShips += 5;
+                        }
+
+                        map.push(planet);
+                        planetIdCounter++;
+                    }
+                }
+
+                // Establecer conexiones entre planetas adyacentes (simple para cuadrícula)
+                map.forEach((p, index) => {
+                    const row = Math.floor(index / numCols);
+                    const col = index % numCols;
+
+                    // Conexión Norte
+                    if (row > 0) {
+                        p.connections.push(map[index - numCols].id);
+                    }
+                    // Conexión Sur
+                    if (row < numRows - 1) {
+                        p.connections.push(map[index + numCols].id);
+                    }
+                    // Conexión Oeste
+                    if (col > 0) {
+                        p.connections.push(map[index - 1].id);
+                    }
+                    // Conexión Este
+                    if (col < numCols - 1) {
+                        p.connections.push(map[index + 1].id);
+                    }
+                });
+
+                return map;
+            },
+
+            // Dibuja los planetas en el mapa
+            renderMap() {
+                this.galaxyMapElement.innerHTML = ''; // Limpia el mapa
+                this.planets.forEach(planet => {
+                    const planetDiv = document.createElement('div');
+                    planetDiv.classList.add('planet');
+                    planetDiv.id = `planet-${planet.id}`;
+                    planetDiv.dataset.planetId = planet.id;
+
+                    const ownerColorClass = planet.owner === null ? 'neutral' : this.players[planet.owner].color;
+                    planetDiv.classList.add(ownerColorClass);
+
+                    // Añadir nombre del planeta
+                    const nameSpan = document.createElement('span');
+                    nameSpan.classList.add('planet-name');
+                    nameSpan.textContent = planet.name.replace('Planeta ', 'P'); // Acortar para la visualización
+
+                    // Añadir flota si tiene
+                    const fleetSpan = document.createElement('span');
+                    fleetSpan.classList.add('planet-fleet');
+                    fleetSpan.textContent = `N: ${planet.fleet}`;
+
+                    planetDiv.appendChild(nameSpan);
+                    planetDiv.appendChild(fleetSpan);
+
+                    planetDiv.addEventListener('click', () => this.selectPlanet(planet.id));
+                    this.galaxyMapElement.appendChild(planetDiv);
+                });
+                this.updateConnectionsVisuals();
+            },
+
+            // Actualiza visualmente las conexiones entre planetas (simple, sin dibujar líneas por ahora)
+            updateConnectionsVisuals() {
+                // En un mapa de cuadrícula, las conexiones son implícitas.
+                // Si hubiera líneas, se redibujarían aquí.
+            },
+
+            // Selecciona un planeta
+            async selectPlanet(planetId) { // Añadido async
+                // Deseleccionar el planeta anterior
+                if (this.selectedPlanet) {
+                    document.getElementById(`planet-${this.selectedPlanet.id}`).classList.remove('selected');
+                }
+
+                this.selectedPlanet = this.planets.find(p => p.id === planetId);
+                document.getElementById(`planet-${this.selectedPlanet.id}`).classList.add('selected');
+
+                this.updateSelectedPlanetInfo();
+                this.updateActionButtons();
+
+                // Generar lore si no se ha generado antes para este planeta
+                if (!this.selectedPlanet.loreGenerated) {
+                    await this.generatePlanetLore(this.selectedPlanet); // Esperar a que se genere el lore
+                }
+            },
+
+            // Actualiza la información del planeta seleccionado, incluyendo el lore
+            updateSelectedPlanetInfo() {
+                if (this.selectedPlanet) {
+                    const ownerName = this.selectedPlanet.owner === null ? 'Neutral' : this.players[this.selectedPlanet.owner].name;
+                    let loreContent = '';
+                    if (this.selectedPlanet.loreText) {
+                        loreContent = `<p class="message-lore"><strong>Lore:</strong> ${this.selectedPlanet.loreText}</p>`;
+                    } else if (this.selectedPlanet.loreGenerated) {
+                        loreContent = '<p class="message-lore">Generando lore...</p>'; // Mensaje temporal si está cargando
+                    } else {
+                        loreContent = '<p class="message-lore">No hay lore disponible (haz clic para generar).</p>';
+                    }
+
+                    this.selectedPlanetInfo.innerHTML = `
+                        <p><strong>Nombre:</strong> ${this.selectedPlanet.name}</p>
+                        <p><strong>Propietario:</strong> <span style="color: ${this.selectedPlanet.owner === null ? '#808080' : (this.selectedPlanet.owner === 0 ? '#00ff00' : '#ff0000')};">${ownerName}</span></p>
+                        <p><strong>Flota:</strong> ${this.selectedPlanet.fleet} naves</p>
+                        <p><strong>Producción:</strong> ${this.selectedPlanet.mineralsProduction} Minerales, ${this.selectedPlanet.energyProduction} Energía</p>
+                        ${loreContent}
+                    `;
+                } else {
+                    this.selectedPlanetInfo.innerHTML = '<p>Selecciona un planeta en el mapa.</p>';
+                }
+            },
+
+            // Actualiza la visualización de recursos del jugador actual
+            updatePlayerResourcesDisplay() {
+                const currentPlayer = this.currentPlayer;
+                this.mineralsDisplay.textContent = currentPlayer.minerals;
+                this.energyDisplay.textContent = currentPlayer.energy;
+                this.shipsDisplay.textContent = currentPlayer.totalShips;
+            },
+
+            // Obtiene el jugador actual
+            get currentPlayer() {
+                return this.players[this.currentPlayerIndex];
+            },
+
+            // Añade un mensaje al log del juego
+            addMessage(message, type = 'message-info') {
+                const p = document.createElement('p');
+                p.classList.add(type);
+                p.textContent = `[Turno ${this.turn}] ${message}`;
+                this.gameMessagesElement.appendChild(p);
+                this.gameMessagesElement.scrollTop = this.gameMessagesElement.scrollHeight; // Desplazar al final
+            },
+
+            // Termina el turno actual y pasa al siguiente jugador
+            endTurn() {
+                this.processEndOfTurn();
+                this.currentPlayerIndex = (this.currentPlayerIndex + 1) % this.players.length;
+                if (this.currentPlayerIndex === 0) {
+                    this.turn++;
+                }
+                this.addMessage(`Es el turno de ${this.currentPlayer.name}`, 'message-turn');
+                this.updatePlayerResourcesDisplay();
+                this.selectedPlanet = null;
+                this.renderMap();
+                this.updateSelectedPlanetInfo();
+                this.updateActionButtons();
+                this.checkWinCondition();
+
+                // Si el jugador actual es bot, que juegue automáticamente
+                if (this.isBot[this.currentPlayerIndex]) {
+                    setTimeout(() => this.botTurn(), 1000);
+                }
+            },
+
+            // Lógica del bot según la dificultad
+            botTurn() {
+                // 1. Construir nave si puede
+                const botPlanets = this.planets.filter(p => p.owner === this.currentPlayer.id);
+                let built = false;
+                for (const planet of botPlanets) {
+                    if (this.currentPlayer.minerals >= 10 && this.currentPlayer.energy >= 5) {
+                        this.selectedPlanet = planet;
+                        this.buildShip();
+                        built = true;
+                        break;
+                    }
+                }
+
+                // 2. Intentar atacar o conquistar un planeta adyacente
+                let moved = false;
+                for (const planet of botPlanets) {
+                    if (planet.fleet > 0) {
+                        // Busca un planeta adyacente neutral o enemigo
+                        const targets = planet.connections
+                            .map(cid => this.planets.find(p => p.id === cid))
+                            .filter(p => p.owner !== this.currentPlayer.id);
+
+                        // Dificultad: en fácil solo ataca neutrales, en difícil ataca siempre que tenga más naves
+                        let target = null;
+                        if (this.difficulty === 'facil') {
+                            target = targets.find(p => p.owner === null);
+                        } else if (this.difficulty === 'dificil') {
+                            target = targets.find(p => planet.fleet > (p.fleet || 0));
+                        } else { // normal
+                            target = targets.find(p => p.owner !== this.currentPlayer.id && planet.fleet >= (p.fleet || 0));
+                        }
+
+                        if (target) {
+                            this.confirmMove(planet.id, target.id);
+                            moved = true;
+                            break;
+                        }
+                    }
+                }
+
+                // 3. Si no pudo mover ni construir, termina turno
+                setTimeout(() => this.endTurn(), 1200);
+            },
+
+            // Procesa la producción de recursos al final del turno
+            processEndOfTurn() {
+                this.planets.forEach(planet => {
+                    if (planet.owner !== null && planet.owner === this.currentPlayer.id) {
+                        this.currentPlayer.minerals += planet.mineralsProduction;
+                        this.currentPlayer.energy += planet.energyProduction;
+                        this.addMessage(`${this.currentPlayer.name} recolecta ${planet.mineralsProduction} Minerales y ${planet.energyProduction} Energía de ${planet.name}.`);
+                    }
+                });
+            },
+
+            // Lógica para construir una nave
+            buildShip() {
+                const costMinerals = 10;
+                const costEnergy = 5;
+
+                if (!this.selectedPlanet || this.selectedPlanet.owner !== this.currentPlayer.id) {
+                    this.addMessage('Debes seleccionar uno de tus planetas para construir una nave.', 'message-error');
+                    return;
+                }
+
+                if (this.currentPlayer.minerals >= costMinerals && this.currentPlayer.energy >= costEnergy) {
+                    this.currentPlayer.minerals -= costMinerals;
+                    this.currentPlayer.energy -= costEnergy;
+                    this.selectedPlanet.fleet += 1;
+                    this.currentPlayer.totalShips += 1;
+                    this.addMessage(`${this.currentPlayer.name} construyó una nave en ${this.selectedPlanet.name}.`, 'message-info');
+                    this.updatePlayerResourcesDisplay();
+                    this.renderMap(); // Re-renderizar para actualizar flota en el planeta
+                    this.updateSelectedPlanetInfo(); // Actualizar info de planeta seleccionado
+                } else {
+                    this.addMessage('Recursos insuficientes para construir una nave (necesitas 10 Minerales, 5 Energía).', 'message-error');
+                }
+            },
+
+            // Lógica para mover la flota
+            moveFleet() {
+                if (!this.selectedPlanet || this.selectedPlanet.owner !== this.currentPlayer.id) {
+                    this.addMessage('Selecciona uno de tus planetas para mover tu flota.', 'message-error');
+                    return;
+                }
+                if (this.selectedPlanet.fleet === 0) {
+                    this.addMessage('No hay naves en este planeta para mover.', 'message-error');
+                    return;
+                }
+
+                this.addMessage('Selecciona un planeta adyacente al que mover tu flota.', 'message-info');
+                const originPlanetId = this.selectedPlanet.id; // Guardar el planeta de origen
+
+                this.galaxyMapElement.querySelectorAll('.planet').forEach(div => {
+                    const planetId = div.dataset.planetId;
+                    // Solo planetas adyacentes y distintos al origen
+                    if (this.selectedPlanet.connections.map(String).includes(String(planetId)) && planetId !== originPlanetId) {
+                        div.style.borderColor = '#ff60ff';
+                        div.style.boxShadow = '0 0 20px rgba(255, 96, 255, 0.7)';
+                        div.style.cursor = 'crosshair';
+                        // Remueve el manejador anterior
+                        div.onclick = (event) => {
+                            event.stopPropagation();
+                            // Usar el planeta de origen guardado, no el que se selecciona por el click
+                            this.confirmMove(originPlanetId, planetId);
+                        };
+                    } else {
+                        div.style.pointerEvents = 'none';
+                    }
+                });
+
+                this.endTurnButton.disabled = true;
+                this.buildShipButton.disabled = true;
+                this.moveFleetButton.disabled = true;
+                this.advisorButton.disabled = true;
+            },
+
+            // Confirma el movimiento y ejecuta el combate si es necesario
+            confirmMove(originPlanetId, targetPlanetId) {
+                const currentPlanet = this.planets.find(p => p.id === String(originPlanetId).trim());
+                const targetPlanet = this.planets.find(p => p.id === String(targetPlanetId).trim());
+
+                if (!targetPlanet || !currentPlanet.connections.map(String).includes(targetPlanet.id)) {
+                    this.addMessage('Movimiento inválido. El planeta de destino no es adyacente o no es válido.', 'message-error');
+                    this.resetMoveSelection();
+                    return;
+                }
+
+                const shipsToMove = currentPlanet.fleet;
+                if (shipsToMove === 0) {
+                    this.addMessage('No hay naves en el planeta de origen para mover.', 'message-error');
+                    this.resetMoveSelection();
+                    return;
+                }
+                currentPlanet.fleet = 0;
+                this.addMessage(`La flota de ${shipsToMove} naves de ${currentPlanet.name} se mueve hacia ${targetPlanet.name}.`, 'message-info');
+
+                if (targetPlanet.owner === null || targetPlanet.owner !== this.currentPlayer.id) {
+                    this.addMessage(`¡Combate estelar en ${targetPlanet.name}!`, 'message-combat');
+                    this.resolveCombat(currentPlanet, targetPlanet, shipsToMove);
+                } else {
+                    targetPlanet.fleet += shipsToMove;
+                    this.addMessage(`La flota refuerza ${targetPlanet.name}. Ahora tiene ${targetPlanet.fleet} naves.`, 'message-info');
+                }
+
+                this.resetMoveSelection();
+                this.renderMap();
+                this.updateSelectedPlanetInfo();
+                this.updatePlayerResourcesDisplay();
+                this.checkWinCondition();
+            },
+
+            // Resuelve el combate (simplificado)
+            resolveCombat(attackingPlanet, defendingPlanet, attackingFleetSize) {
+                const defendingFleetSize = defendingPlanet.fleet;
+                const attackingPlayer = this.currentPlayer;
+                const defendingPlayer = defendingPlanet.owner !== null ? this.players[defendingPlanet.owner] : null;
+
+                // Restar naves de ambos lados, el que tiene más "gana" el remanente
+                const outcome = attackingFleetSize - defendingFleetSize;
+
+                if (outcome > 0) {
+                    // Atacante gana
+                    attackingPlayer.totalShips -= defendingFleetSize; // Las naves defensoras se pierden
+                    if (defendingPlayer) {
+                        defendingPlayer.totalShips -= defendingFleetSize;
+                        if (defendingPlayer.totalShips < 0) defendingPlayer.totalShips = 0; // Asegurarse de no ir por debajo de 0
+                    }
+
+                    defendingPlanet.fleet = outcome; // Naves restantes del atacante ocupan el planeta
+                    defendingPlanet.owner = attackingPlayer.id;
+                    // Resetear lore para que se genere nuevo si es conquistado
+                    defendingPlanet.loreGenerated = false;
+                    defendingPlanet.loreText = '';
+
+                    this.addMessage(`${attackingPlayer.name} ha conquistado ${defendingPlanet.name} con ${outcome} naves restantes.`, 'message-combat');
+                } else if (outcome < 0) {
+                    // Defensor gana
+                    attackingPlayer.totalShips -= attackingFleetSize; // Las naves atacantes se pierden
+                    defendingPlanet.fleet = Math.abs(outcome); // Naves restantes del defensor
+                    this.addMessage(`${defendingPlayer ? defendingPlayer.name : 'Los defensores neutrales'} han defendido ${defendingPlanet.name}. La flota atacante fue destruida.`, 'message-combat');
+                } else {
+                    // Empate, ambos pierden todas las naves en el combate
+                    attackingPlayer.totalShips -= attackingFleetSize;
+                    if (defendingPlayer) {
+                         defendingPlayer.totalShips -= defendingFleetSize;
+                         if (defendingPlayer.totalShips < 0) defendingPlayer.totalShips = 0;
+                    }
+                    defendingPlanet.fleet = 0;
+                    defendingPlanet.owner = null; // Planeta se vuelve neutral si ambos pierden
+                    defendingPlanet.loreGenerated = false; // Resetear lore si se vuelve neutral
+                    defendingPlanet.loreText = '';
+                    this.addMessage(`El combate en ${defendingPlanet.name} fue un empate devastador. El planeta se vuelve neutral.`, 'message-combat');
+                }
+                if (attackingPlayer.totalShips < 0) attackingPlayer.totalShips = 0; // Asegurarse de no ir por debajo de 0
+                this.updatePlayerResourcesDisplay(); // Actualizar total de naves en el display
+            },
+
+            // Reinicia el estado visual de la selección de movimiento
+            resetMoveSelection() {
+                this.galaxyMapElement.querySelectorAll('.planet').forEach(div => {
+                    div.style.borderColor = ''; // Restablecer borde
+                    div.style.boxShadow = ''; // Restablecer sombra
+                    div.style.cursor = 'pointer'; // Restablecer cursor
+                    div.onclick = (event) => {
+                        event.stopPropagation();
+                        this.selectPlanet(div.dataset.planetId);
+                    }; // Restablecer manejador de clic
+                });
+                this.updateActionButtons(); // Habilitar botones de nuevo
+            },
+
+            // Actualiza el estado de los botones de acción (habilitado/deshabilitado)
+            updateActionButtons() {
+                const currentPlayer = this.currentPlayer;
+                const canBuildShip = currentPlayer.minerals >= 10 && currentPlayer.energy >= 5 && this.selectedPlanet && this.selectedPlanet.owner === currentPlayer.id;
+                const canMoveFleet = this.selectedPlanet && this.selectedPlanet.owner === currentPlayer.id && this.selectedPlanet.fleet > 0;
+
+                this.buildShipButton.disabled = !canBuildShip;
+                this.moveFleetButton.disabled = !canMoveFleet;
+                this.endTurnButton.disabled = false; // Siempre se puede terminar el turno
+                this.advisorButton.disabled = false; // El asesor siempre está disponible
+            },
+
+            // Comprueba la condición de victoria
+            checkWinCondition() {
+                const ownedByPlayer0 = this.planets.filter(p => p.owner === 0).length;
+                const ownedByPlayer1 = this.planets.filter(p => p.owner === 1).length;
+                const totalPlanets = this.planets.length;
+
+                if (ownedByPlayer0 === totalPlanets) {
+                    this.addMessage(`${this.players[0].name} ha conquistado toda la galaxia. ¡Victoria!`, 'message-win');
+                    this.endGame();
+                } else if (ownedByPlayer1 === totalPlanets) {
+                    this.addMessage(`${this.players[1].name} ha conquistado toda la galaxia. ¡Victoria!`, 'message-win');
+                    this.endGame();
+                } else if (this.turn > 50) { // Límite de turnos para evitar partidas infinitas
+                    this.addMessage('Fin del juego: Se ha alcanzado el límite de turnos (50). Es un empate o ninguna facción logró la victoria.', 'message-info');
+                    this.endGame();
+                }
+            },
+
+            // Finaliza el juego
+            endGame() {
+                this.endTurnButton.disabled = true;
+                this.buildShipButton.disabled = true;
+                this.moveFleetButton.disabled = true;
+                this.advisorButton.disabled = true; // Deshabilitar asesor al finalizar
+                this.galaxyMapElement.querySelectorAll('.planet').forEach(div => {
+                    div.style.cursor = 'default';
+                    div.onclick = null;
+                });
+                this.addMessage('Juego terminado. ¡Refresca la página para jugar de nuevo!', 'message-turn');
+            },
+
+            // --- Nuevas funcionalidades de IA ---
+
+            // Función para obtener consejo del asesor de IA
+            async getAdvisorAdvice() {
+                this.addMessage('Consultando al Asesor Estratégico...', 'message-advisor');
+                this.advisorButton.disabled = true; // Deshabilitar mientras se genera el consejo
+
+                try {
+                    const currentPlayer = this.currentPlayer;
+                    const opponentPlayer = this.players.find(p => p.id !== currentPlayer.id);
+
+                    // Construir la información de los planetas
+                    const playerPlanets = this.planets.filter(p => p.owner === currentPlayer.id)
+                        .map(p => `- ${p.name} (Flota: ${p.fleet}, Prod: ${p.mineralsProduction}M/${p.energyProduction}E)`).join('\n');
+                    const opponentPlanets = this.planets.filter(p => p.owner === opponentPlayer.id)
+                        .map(p => `- ${p.name} (Flota: ${p.fleet}, Prod: ${p.mineralsProduction}M/${p.energyProduction}E)`).join('\n');
+                    const neutralPlanets = this.planets.filter(p => p.owner === null)
+                        .map(p => `- ${p.name} (Flota: ${p.fleet}, Prod: ${p.mineralsProduction}M/${p.energyProduction}E)`).join('\n');
+
+                    const prompt = `Eres un estratega galáctico experimentado. Basado en la siguiente información del juego, por favor, ofrece un consejo estratégico conciso y útil para el ${currentPlayer.name} (verde). Tu consejo debe enfocarse en movimientos de flotas, construcción de naves o planetas a conquistar.
+
+---
+Estado del Juego:
+Turno actual: ${this.turn}
+Jugador actual: ${currentPlayer.name} (verde)
+
+Recursos de ${currentPlayer.name}:
+Minerales: ${currentPlayer.minerals}
+Energía: ${currentPlayer.energy}
+Naves totales: ${currentPlayer.totalShips}
+
+Tus Planetas (${currentPlayer.name}):
+${playerPlanets || 'Ninguno'}
+
+Planetas Enemigos (${opponentPlayer.name} - rojo):
+${opponentPlanets || 'Ninguno'}
+
+Planetas Neutrales:
+${neutralPlanets || 'Ninguno'}
+
+---
+Tu consejo:`;
+
+                    let chatHistory = [];
+                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                    const payload = { contents: chatHistory };
+                    const apiKey = ""; // La clave API se inyecta en tiempo de ejecución por Canvas
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        const advice = result.candidates[0].content.parts[0].text;
+                        this.addMessage(`Asesor: ${advice}`, 'message-advisor');
+                    } else {
+                        this.addMessage('Asesor: No pude generar un consejo en este momento. Inténtalo de nuevo.', 'message-error');
+                        console.error('Error al obtener consejo del LLM:', result);
+                    }
+                } catch (error) {
+                    this.addMessage('Asesor: Error de conexión. Inténtalo de nuevo más tarde.', 'message-error');
+                    console.error('Error al llamar a la API de Gemini para consejo:', error);
+                } finally {
+                    this.advisorButton.disabled = false; // Re-habilitar botón
+                }
+            },
+
+            // Función para generar lore del planeta
+            async generatePlanetLore(planet) {
+                if (planet.loreGenerated) {
+                    return; // No generar si ya tiene lore
+                }
+
+                this.addMessage(`Generando lore para ${planet.name}...`, 'message-lore');
+                this.selectedPlanetInfo.innerHTML += '<p class="message-lore">Cargando lore...</p>'; // Mensaje temporal
+
+                try {
+                    const ownerStatus = planet.owner === null ? 'neutral' : `propiedad de ${this.players[planet.owner].name}`;
+                    const prompt = `Genera una breve y misteriosa historia o descripción de trasfondo (lore) para un planeta llamado '${planet.name}'. El planeta es ${ownerStatus}, tiene una flota de ${planet.fleet} naves y una producción de ${planet.mineralsProduction} Minerales y ${planet.energyProduction} Energía. Debe tener un tono de ciencia ficción y aventura, similar a la descripción de un descubrimiento. Incluye algo sobre su atmósfera, geología o posibles civilizaciones antiguas. Máximo 3-4 frases.`;
+
+                    let chatHistory = [];
+                    chatHistory.push({ role: "user", parts: [{ text: prompt }] });
+                    const payload = { contents: chatHistory };
+                    const apiKey = ""; // La clave API se inyecta en tiempo de ejecución por Canvas
+                    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const result = await response.json();
+                    if (result.candidates && result.candidates.length > 0 &&
+                        result.candidates[0].content && result.candidates[0].content.parts &&
+                        result.candidates[0].content.parts.length > 0) {
+                        planet.loreText = result.candidates[0].content.parts[0].text;
+                        planet.loreGenerated = true;
+                        this.addMessage(`Lore de ${planet.name} generado.`, 'message-lore');
+                    } else {
+                        planet.loreText = 'No se pudo generar el lore para este planeta.';
+                        console.error('Error al obtener lore del LLM:', result);
+                    }
+                } catch (error) {
+                    planet.loreText = 'Error al cargar el lore del planeta.';
+                    console.error('Error al llamar a la API de Gemini para lore:', error);
+                } finally {
+                    this.updateSelectedPlanetInfo(); // Actualizar la UI con el lore (o el mensaje de error)
+                }
+            }
+        }; // Cierra el objeto game correctamente
+
+        // Inicializar el juego al cargar la página
+        window.onload = function() {
+            game.initializeGame();
+        };
+    </script>
+</body>
+</html>

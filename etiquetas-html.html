@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Completa de Etiquetas HTML</title>
+    <!-- Carga de Tailwind CSS para estilos de utilidad -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Fuentes limpias para legibilidad */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Fondo suave */
+            color: #333;
+            line-height: 1.6;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 960px;
+            margin: 0 auto;
+            background-color: #fff;
+            border-radius: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+            margin-bottom: 2rem; /* Espacio entre contenedores si hubiera más */
+        }
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            color: #2c5282;
+            text-align: center;
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+        h2 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f425f;
+            margin-top: 2.5rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #ebf8ff;
+        }
+        details {
+            background-color: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+        summary {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #4299e1;
+            padding: 1rem 1.5rem;
+            cursor: pointer;
+            outline: none;
+            user-select: none;
+            background-color: #e0f2fe;
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: center;
+        }
+        summary::marker {
+            content: ''; /* Oculta el marcador predeterminado */
+        }
+        summary::-webkit-details-marker {
+            display: none; /* Oculta el marcador en Webkit */
+        }
+        summary::after {
+            content: '▶'; /* Flecha derecha */
+            margin-left: 10px;
+            transition: transform 0.2s ease;
+        }
+        details[open] summary::after {
+            content: '▼'; /* Flecha hacia abajo */
+            transform: rotate(0deg);
+        }
+        .tag-content {
+            padding: 1rem 1.5rem 1.5rem;
+            border-top: 1px solid #e2e8f0;
+        }
+        code {
+            background-color: #e2e8f0;
+            padding: 0.2em 0.4em;
+            border-radius: 0.25rem;
+            font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+            font-size: 0.9em;
+            color: #c53030; /* Rojo para el código en línea */
+        }
+        pre code {
+            display: block;
+            background-color: #2d3748; /* Fondo oscuro para bloques de código */
+            color: #e2e8f0;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            font-size: 0.85em;
+            white-space: pre-wrap; /* Permite saltos de línea para mejor visualización */
+        }
+        .example-output {
+            border: 1px dashed #cbd5e0;
+            background-color: #ffffff;
+            padding: 1rem;
+            margin-top: 0.75rem;
+            border-radius: 0.25rem;
+            min-height: 50px; /* Asegura un espacio para la salida */
+            display: flex; /* Para centrar contenido si es pequeño */
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            color: #4a5568; /* Color de texto para el output */
+        }
+        .example-output h1, .example-output h2, .example-output h3, .example-output h4, .example-output h5, .example-output h6 {
+            color: #2d3748; /* Oscurecer encabezados en el output */
+        }
+
+        /* Estilos específicos para ejemplos en texto */
+        .example-output ul, .example-output ol {
+            list-style: initial;
+            padding-left: 1.5em;
+            margin-left: 0;
+            text-align: left;
+            width: 100%;
+        }
+        .example-output li {
+            margin-bottom: 0.25em;
+        }
+
+        /* Estilos específicos para ejemplos en multimedia */
+        .example-output img, .example-output video, .example-output audio {
+            max-width: 100%;
+            height: auto;
+            border-radius: 0.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .example-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        .example-table th, .example-table td {
+            border: 1px solid #cbd5e0;
+            padding: 0.75rem;
+            text-align: left;
+        }
+        .example-table th {
+            background-color: #e2e8f0;
+            font-weight: 600;
+        }
+        .example-table tbody tr:nth-child(even) {
+            background-color: #f7fafc;
+        }
+
+        /* Estilos específicos para ejemplos en formularios */
+        .example-output form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            padding: 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            background-color: #fcfcfc;
+        }
+        .example-output input[type="text"],
+        .example-output input[type="number"],
+        .example-output input[type="email"],
+        .example-output input[type="password"],
+        .example-output textarea,
+        .example-output select {
+            border: 1px solid #cbd5e0;
+            padding: 0.5rem 0.75rem;
+            border-radius: 0.25rem;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .example-output input[type="submit"],
+        .example-output button {
+            background-color: #4299e1;
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.375rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.2s ease;
+        }
+        .example-output input[type="submit"]:hover,
+        .example-output button:hover {
+            background-color: #3182ce;
+        }
+        .example-output label {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+            display: block;
+            color: #2d3748;
+        }
+        .example-output input[type="radio"],
+        .example-output input[type="checkbox"] {
+            width: auto;
+            margin-right: 0.5rem;
+        }
+        .example-output .radio-group, .example-output .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Estilos para la animación general */
+        .animation-container {
+            background-color: #2a4365; /* Azul oscuro para el fondo de la animación */
+            padding: 2rem;
+            border-radius: 1rem;
+            min-height: 250px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            position: relative;
+            overflow: hidden; /* Asegura que los elementos no se salgan */
+            margin-top: 2rem;
+        }
+        .animated-element {
+            width: 80px;
+            height: 80px;
+            background-color: #ecc94b; /* Amarillo vibrante */
+            border-radius: 0.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: 700;
+            color: #2d3748;
+            font-size: 0.9rem;
+            transition: transform 0.5s ease-in-out, background-color 0.5s ease-in-out;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            cursor: pointer;
+        }
+        .animated-element:hover {
+            transform: scale(1.1) rotate(5deg);
+            background-color: #48bb78; /* Verde al pasar el ratón */
+        }
+        .animated-element.active {
+            animation: pulse-grow 1s infinite alternate; /* Animación de pulsación */
+            background-color: #e53e3e; /* Rojo cuando está activo */
+            box-shadow: 0 0 20px rgba(229, 62, 62, 0.7);
+        }
+        @keyframes pulse-grow {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.05); opacity: 0.9; }
+        }
+        .animation-controls {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        .animation-button {
+            background-color: #008080;
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+        }
+        .animation-button:hover {
+            background-color: #009999;
+            transform: translateY(-2px);
+        }
+        .animation-button:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+        .example-output header, .example-output nav, .example-output main, .example-output footer, .example-output aside, .example-output article, .example-output section {
+            width: 100%;
+            border: 1px dashed #a0aec0;
+            padding: 0.5rem;
+            margin-bottom: 0.5rem;
+            background-color: #ebf8ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Guía Completa de Etiquetas HTML</h1>
+        <p class="text-lg mb-8 text-gray-700 text-center">
+            Esta guía combina todas las partes para explorar las etiquetas HTML más comunes, desde la estructura básica y metadatos hasta contenido de texto, multimedia, tablas, formularios y las etiquetas semánticas de HTML5.
+            Expande cada sección para ver la función de la etiqueta, un ejemplo de código y su salida en vivo.
+        </p>
+
+        <!-- Parte 1: Estructura Básica y Metadatos -->
+        <h2>Parte 1: Etiquetas de Estructura Básica del Documento y Metadatos</h2>
+
+        <!-- DOCTYPE html -->
+        <details>
+            <summary>&lt;!DOCTYPE html&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Es una declaración que define el tipo de documento y la versión de HTML (HTML5 en este caso). No es una etiqueta HTML, sino una instrucción para el navegador que debe ser la primera línea de cualquier documento HTML.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;!DOCTYPE html&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p class="text-sm text-gray-600">No tiene una salida visual directa en el cuerpo de la página, pero es esencial para que el navegador renderice el HTML correctamente en "modo estándares".</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- html -->
+        <details>
+            <summary>&lt;html&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> El elemento raíz de una página HTML. Es el contenedor para todo el contenido y las etiquetas HTML en el documento.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;html lang="es"&gt;
+  &lt;!-- Aquí va todo el contenido de la página --&gt;
+&lt;/html&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p class="text-sm text-gray-600">Contiene toda la estructura que estás viendo en esta página. No tiene una representación visual directa en sí misma, sino que define el contexto del documento.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- head -->
+        <details>
+            <summary>&lt;head&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Contiene metadatos sobre el documento HTML, como el título de la página, enlaces a hojas de estilo CSS, scripts JavaScript, configuraciones de caracteres, etc. Su contenido NO es visible directamente en el cuerpo de la página.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;Mi Título de Página&lt;/title&gt;
+  &lt;link rel="stylesheet" href="styles.css"&gt;
+&lt;/head&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p class="text-sm text-gray-600">El contenido de <code>&lt;head&gt;</code> no se renderiza directamente en el cuerpo visible de la página.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- meta -->
+        <details>
+            <summary>&lt;meta&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Define metadatos sobre el documento HTML que no pueden ser definidos por otras etiquetas meta específicas. Se utiliza para especificar la codificación de caracteres, la descripción de la página, palabras clave, configuración del viewport para responsividad, y más.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código (ejemplos comunes):</p>
+                <pre><code class="language-html">&lt;meta charset="UTF-8"&gt;
+&lt;meta name="description" content="Una descripción de mi página web."&gt;
+&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p class="text-sm text-gray-600">Las etiquetas <code>&lt;meta&gt;</code> proporcionan información al navegador y a los motores de búsqueda, pero no tienen una salida visual directa en la página.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- title -->
+        <details>
+            <summary>&lt;title&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Define el título del documento HTML. Este título aparece en la barra de título del navegador, en la pestaña de la ventana o como título de un marcador/favorito.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;title&gt;Título de mi Documento&lt;/title&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p class="text-sm text-gray-600">El título de esta misma página, "Guía Completa de Etiquetas HTML", se define con la etiqueta <code>&lt;title&gt;</code> en la sección <code>&lt;head&gt;</code>.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- link -->
+        <details>
+            <summary>&lt;link&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Se utiliza para establecer un vínculo entre el documento HTML y un recurso externo. Su uso más común es para vincular hojas de estilo CSS externas (<code>&lt;link rel="stylesheet" href="styles.css"&gt;</code>) o iconos de favoritos (favicons).</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código (ejemplos comunes):</p>
+                <pre><code class="language-html">&lt;link rel="stylesheet" href="mi-estilo.css"&gt;
+&lt;link rel="icon" href="favicon.ico" type="image/x-icon"&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p class="text-sm text-gray-600"><code>&lt;link&gt;</code> no tiene una representación visual directa, pero es crucial para cargar los estilos y el icono que ves en la pestaña del navegador.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- style -->
+        <details>
+            <summary>&lt;style&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Permite incrustar código CSS directamente dentro del documento HTML. Esto se usa comúnmente en la sección <code>&lt;head&gt;</code> para estilos específicos de una página, o en el <code>&lt;body&gt;</code> para estilos de alcance limitado.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;style&gt;
+  p {
+    color: blue;
+    font-size: 16px;
+  }
+&lt;/style&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p style="color: purple; font-weight: bold;">Este párrafo tiene estilos aplicados directamente desde una etiqueta &lt;style&gt; interna.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- base -->
+        <details>
+            <summary>&lt;base&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Especifica una URL base o un objetivo base para todas las URL relativas en el documento. Solo puede haber una etiqueta <code>&lt;base&gt;</code> en un documento.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;head&gt;
+  &lt;base href="https://ejemplo.com/imagenes/" target="_blank"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;img src="mi-imagen.png"&gt; &lt;!-- Esto se resolverá como https://ejemplo.com/imagenes/mi-imagen.png --&gt;
+&lt;/body&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p class="text-sm text-gray-600">La etiqueta <code>&lt;base&gt;</code> no tiene una salida visual directa, ya que afecta cómo el navegador resuelve las URLs relativas en el fondo.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- body -->
+        <details>
+            <summary>&lt;body&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Contiene todo el contenido visible de la página web, como texto, imágenes, videos, enlaces, formularios, etc. Es donde reside la mayor parte del HTML que interactúa con el usuario.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;body&gt;
+  &lt;h1&gt;Bienvenido a mi Web&lt;/h1&gt;
+  &lt;p&gt;Este es el contenido principal de la página.&lt;/p&gt;
+&lt;/body&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <h3 class="text-xl font-semibold text-gray-800">Todo este texto que lees está dentro de &lt;body&gt;</h3>
+                    <p class="text-sm text-gray-700">Incluyendo esta explicación y los ejemplos que ves.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- Parte 2: Contenido de Texto -->
+        <h2>Parte 2: Etiquetas de Contenido de Texto</h2>
+
+        <!-- h1 a h6 -->
+        <details>
+            <summary>&lt;h1&gt; a &lt;h6&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Definen encabezados de sección. <code>&lt;h1&gt;</code> es el más importante (generalmente para el título principal de la página o sección) y <code>&lt;h6&gt;</code> es el menos importante. Ayudan a los navegadores y a los motores de búsqueda a comprender la estructura del contenido.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;h1&gt;Título Principal&lt;/h1&gt;
+&lt;h2&gt;Subtítulo de Sección&lt;/h2&gt;
+&lt;h3&gt;Encabezado de Subsección&lt;/h3&gt;
+&lt;h4&gt;Encabezado de Nivel 4&lt;/h4&gt;
+&lt;h5&gt;Encabezado de Nivel 5&lt;/h5&gt;
+&lt;h6&gt;Encabezado de Nivel 6&lt;/h6&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output block">
+                    <h1>Este es un Encabezado H1</h1>
+                    <h2>Este es un Encabezado H2</h2>
+                    <h3>Este es un Encabezado H3</h3>
+                    <h4>Este es un Encabezado H4</h4>
+                    <h5>Este es un Encabezado H5</h5>
+                    <h6>Este es un Encabezado H6</h6>
+                </div>
+            </div>
+        </details>
+
+        <!-- p -->
+        <details>
+            <summary>&lt;p&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Define un párrafo de texto. Es la etiqueta más fundamental para bloques de texto en un documento HTML.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;p&gt;Este es un ejemplo de un párrafo de texto.&lt;/p&gt;
+&lt;p&gt;Cada etiqueta p crea un nuevo bloque de texto.&lt;/p&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p>Este es un ejemplo de un párrafo de texto.</p>
+                    <p>Cada etiqueta p crea un nuevo bloque de texto.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- a -->
+        <details>
+            <summary>&lt;a&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Define un hipervínculo (enlace). Se utiliza para conectar a otra página web, a un archivo descargable, a una dirección de correo electrónico, o a una sección dentro de la misma página. El atributo <code>href</code> es obligatorio y especifica el destino del enlace.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;a href="https://www.google.com"&gt;Ir a Google&lt;/a&gt;
+&lt;br&gt;
+&lt;a href="#seccion-abajo"&gt;Ir a una sección&lt;/a&gt;
+&lt;br&gt;
+&lt;a href="mailto:ejemplo@dominio.com"&gt;Enviar Correo&lt;/a&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output flex-col items-center">
+                    <a href="https://www.google.com" target="_blank" class="text-blue-600 hover:underline">Ir a Google (abre en nueva pestaña)</a>
+                    <a href="#" class="text-blue-600 hover:underline">Ir a una sección (ejemplo)</a>
+                    <a href="mailto:ejemplo@dominio.com" class="text-blue-600 hover:underline">Enviar Correo (ejemplo)</a>
+                </div>
+            </div>
+        </details>
+
+        <!-- strong y b -->
+        <details>
+            <summary>&lt;strong&gt; y &lt;b&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Ambas etiquetas se utilizan para hacer que el texto se muestre en negrita. La principal diferencia es semántica: <code>&lt;strong&gt;</code> indica que el texto es de "gran importancia" o urgencia, mientras que <code>&lt;b&gt;</code> (bold) solo se utiliza para estilizar texto sin añadir importancia semántica adicional (por ejemplo, para destacar un nombre en un párrafo).</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;p&gt;Este es texto normal, &lt;strong&gt;pero esto es muy importante&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Aquí un ejemplo de &lt;b&gt;texto solo en negrita&lt;/b&gt; sin importancia.&lt;/p&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p>Este es texto normal, <strong>pero esto es muy importante</strong>.</p>
+                    <p>Aquí un ejemplo de <b>texto solo en negrita</b> sin importancia.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- em y i -->
+        <details>
+            <summary>&lt;em&gt; y &lt;i&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Ambas etiquetas se utilizan para hacer que el texto se muestre en cursiva (itálica). Al igual que con <code>&lt;strong&gt;</code> y <code>&lt;b&gt;</code>, la diferencia es semántica: <code>&lt;em&gt;</code> indica "énfasis" (lo que cambia el significado o tono de una frase), mientras que <code>&lt;i&gt;</code> (italic) se usa para texto con una voz o estado de ánimo alternativo (por ejemplo, nombres científicos, títulos de obras, o palabras extranjeras).</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;p&gt;Yo &lt;em&gt;realmente&lt;/em&gt; quiero aprender HTML.&lt;/p&gt;
+&lt;p&gt;El nombre científico es &lt;i&gt;Homo sapiens&lt;/i&gt;.&lt;/p&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p>Yo <em>realmente</em> quiero aprender HTML.</p>
+                    <p>El nombre científico es <i>Homo sapiens</i>.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- div -->
+        <details>
+            <summary>&lt;div&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Un contenedor de bloque genérico. Se usa para agrupar otros elementos HTML y aplicarles estilos CSS o manipularlos con JavaScript. Por defecto, ocupa el ancho completo disponible y coloca el siguiente elemento en una nueva línea.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;div style="background-color: #e0f7fa; padding: 10px; border-radius: 5px;"&gt;
+  &lt;p&gt;Este es un párrafo dentro de un div.&lt;/p&gt;
+  &lt;span&gt;Otro contenido.&lt;/span&gt;
+&lt;/div&gt;
+&lt;div style="background-color: #fff3e0; padding: 10px; border-radius: 5px; margin-top: 10px;"&gt;
+  &lt;p&gt;Este es otro div.&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output flex-col items-start">
+                    <div class="bg-blue-100 p-2 m-1 border border-blue-300 rounded w-full">
+                        <p class="text-sm">Contenido del primer Div.</p>
+                        <span class="text-xs text-gray-500">Un span dentro del div.</span>
+                    </div>
+                    <div class="bg-yellow-100 p-2 m-1 border border-yellow-300 rounded w-full">
+                        <p class="text-sm">Contenido del segundo Div.</p>
+                    </div>
+                    <p class="text-sm mt-2 text-gray-600">Los divs son bloques que ocupan su propio espacio vertical y se usan para agrupar.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- span -->
+        <details>
+            <summary>&lt;span&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Un contenedor en línea genérico. Se usa para aplicar estilos CSS o manipular con JavaScript una pequeña porción de texto o de contenido sin afectar su diseño de bloque. A diferencia de <code>&lt;div&gt;</code>, <code>&lt;span&gt;</code> no introduce un salto de línea.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;p&gt;Este es un texto con una &lt;span style="color: blue; font-weight: bold;"&gt;porción destacada&lt;/span&gt; en línea.&lt;/p&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p>Este es un texto con una <span class="bg-green-100 px-1 py-0.5 border border-green-300 rounded" style="color: #059669; font-weight: bold;">porción destacada</span> en línea.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- br -->
+        <details>
+            <summary>&lt;br&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Inserta un salto de línea (line break) dentro de un texto, forzando que el contenido siguiente comience en una nueva línea. Es una etiqueta de autocierre (vacía).</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;p&gt;Primera línea de texto.&lt;br&gt;Segunda línea después de un salto.&lt;/p&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p>Primera línea de texto.<br>Segunda línea después de un salto.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- hr -->
+        <details>
+            <summary>&lt;hr&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Representa un cambio temático en el contenido o una ruptura a nivel de párrafo, usualmente visualizado como una línea horizontal (horizontal rule). Es una etiqueta de autocierre (vacía).</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;p&gt;Contenido superior.&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;Contenido inferior.&lt;/p&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p>Contenido superior.</p>
+                    <hr class="my-4 border-t-2 border-gray-300 w-full">
+                    <p>Contenido inferior.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- ul y li -->
+        <details>
+            <summary>&lt;ul&gt; y &lt;li&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong>
+                    <ul>
+                        <li><code>&lt;ul&gt;</code>: Define una lista desordenada (Unordered List), donde los elementos se marcan típicamente con viñetas.</li>
+                        <li><code>&lt;li&gt;</code>: Define un elemento de lista (List Item) dentro de una lista (ya sea <code>&lt;ul&gt;</code> o <code>&lt;ol&gt;</code>).</li>
+                    </ul>
+                </p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;ul&gt;
+  &lt;li&gt;Elemento de la lista 1&lt;/li&gt;
+  &lt;li&gt;Elemento de la lista 2&lt;/li&gt;
+  &lt;li&gt;Elemento de la lista 3&lt;/li&gt;
+&lt;/ul&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output flex-col items-start">
+                    <ul class="list-disc pl-5">
+                        <li>Elemento de la lista 1</li>
+                        <li>Elemento de la lista 2</li>
+                        <li>Elemento de la lista 3</li>
+                    </ul>
+                </div>
+            </div>
+        </details>
+
+        <!-- ol y li -->
+        <details>
+            <summary>&lt;ol&gt; y &lt;li&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong>
+                    <ul>
+                        <li><code>&lt;ol&gt;</code>: Define una lista ordenada (Ordered List), donde los elementos se marcan típicamente con números o letras.</li>
+                        <li><code>&lt;li&gt;</code>: Define un elemento de lista (List Item) dentro de una lista (ya sea <code>&lt;ul&gt;</code> o <code>&lt;ol&gt;</code>).</li>
+                    </ul>
+                </p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;ol&gt;
+  &lt;li&gt;Primer paso&lt;/li&gt;
+  &lt;li&gt;Segundo paso&lt;/li&gt;
+  &lt;li&gt;Tercer paso&lt;/li&gt;
+&lt;/ol&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output flex-col items-start">
+                    <ol class="list-decimal pl-5">
+                        <li>Primer paso</li>
+                        <li>Segundo paso</li>
+                        <li>Tercer paso</li>
+                    </ol>
+                </div>
+            </div>
+        </details>
+
+        <!-- pre -->
+        <details>
+            <summary>&lt;pre&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Representa texto preformateado. El texto dentro de <code>&lt;pre&gt;</code> se muestra en una fuente monoespaciada, y tanto los espacios como los saltos de línea se respetan (no se ignoran como en el texto normal HTML).</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;pre&gt;
+Esta es una línea.
+  Esta es otra línea con sangría.
+    Y una tercera.
+&lt;/pre&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output flex-col items-start bg-gray-50 border border-gray-300">
+                    <pre class="font-mono text-gray-700">Esta es una línea.
+  Esta es otra línea con sangría.
+    Y una tercera.
+</pre>
+                </div>
+            </div>
+        </details>
+
+        <!-- code -->
+        <details>
+            <summary>&lt;code&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Representa un fragmento de código de programación. El contenido suele mostrarse en una fuente monoespaciada por defecto. A menudo se utiliza dentro de <code>&lt;pre&gt;</code> para bloques de código multilínea.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;p&gt;La función para imprimir es &lt;code&gt;console.log()&lt;/code&gt;.&lt;/p&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p>La función para imprimir es <code>console.log()</code>.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- blockquote -->
+        <details>
+            <summary>&lt;blockquote&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Define una sección que se cita de otra fuente. Los navegadores suelen renderizar el contenido de <code>&lt;blockquote&gt;</code> con sangría.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;blockquote cite="http://www.ejemplo.com/cita"&gt;
+  &lt;p&gt;La imaginación es más importante que el conocimiento.&lt;/p&gt;
+  &lt;footer&gt;— Albert Einstein&lt;/footer&gt;
+&lt;/blockquote&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <blockquote class="border-l-4 border-gray-400 pl-4 py-2 italic text-gray-700 bg-gray-50 rounded">
+                        <p>La imaginación es más importante que el conocimiento.</p>
+                        <footer class="text-sm mt-2">— Albert Einstein</footer>
+                    </blockquote>
+                </div>
+            </div>
+        </details>
+
+        <!-- q -->
+        <details>
+            <summary>&lt;q&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Se utiliza para citas cortas en línea. Los navegadores suelen añadir comillas al contenido de <code>&lt;q&gt;</code> automáticamente.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;p&gt;Sócrates dijo &lt;q&gt;Solo sé que no sé nada&lt;/q&gt;.&lt;/p&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p>Sócrates dijo <q>Solo sé que no sé nada</q>.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- abbr -->
+        <details>
+            <summary>&lt;abbr&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Representa una abreviatura o un acrónimo. El atributo <code>title</code> puede usarse para proporcionar la descripción completa de la abreviatura, la cual se muestra como un tooltip al pasar el ratón.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;p&gt;La &lt;abbr title="Organización Mundial de la Salud"&gt;OMS&lt;/abbr&gt; publicó un informe.&lt;/p&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p>La <abbr title="Organización Mundial de la Salud" class="underline decoration-dotted cursor-help">OMS</abbr> publicó un informe.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- address -->
+        <details>
+            <summary>&lt;address&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Proporciona información de contacto para el autor/propietario del documento o de una sección.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;address&gt;
+  Escrito por &lt;a href="mailto:webmaster@example.com"&gt;Juan Pérez&lt;/a&gt;.&lt;br&gt;
+  Visítanos en: Calle Falsa 123, Ciudad.&lt;br&gt;
+  Teléfono: +123 456 7890
+&lt;/address&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output flex-col items-start">
+                    <address class="italic text-sm text-gray-700">
+                        Escrito por <a href="mailto:webmaster@example.com" class="text-blue-600 hover:underline">Juan Pérez</a>.<br>
+                        Visítanos en: Calle Falsa 123, Ciudad.<br>
+                        Teléfono: +123 456 7890
+                    </address>
+                </div>
+            </div>
+        </details>
+
+        <!-- bdo -->
+        <details>
+            <summary>&lt;bdo&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> (Bidirectional Override) Se utiliza para anular la dirección del texto actual. El atributo <code>dir</code> (ltr para left-to-right o rtl para right-to-left) es obligatorio.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;p&gt;Este texto es normal. &lt;bdo dir="rtl"&gt;Este texto se leerá de derecha a izquierda.&lt;/bdo&gt;&lt;/p&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p>Este texto es normal. <bdo dir="rtl">.izquierda a derecha de leerá se texto Este</bdo></p>
+                </div>
+            </div>
+        </details>
+
+        <!-- cite -->
+        <details>
+            <summary>&lt;cite&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Se utiliza para definir el título de una obra creativa (por ejemplo, un libro, una canción, una película, una pintura, una escultura, etc.). El contenido de <code>&lt;cite&gt;</code> suele mostrarse en cursiva.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;p&gt;Como dijo Shakespeare en &lt;cite&gt;Hamlet&lt;/cite&gt;.&lt;/p&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p>Como dijo Shakespeare en <cite>Hamlet</cite>.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- dfn -->
+        <details>
+            <summary>&lt;dfn&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Se utiliza para indicar la instancia de definición de un término. El término se suele mostrar en cursiva.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;p&gt;Un &lt;dfn&gt;algoritmo&lt;/dfn&gt; es un conjunto finito de instrucciones o reglas.&lt;/p&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p>Un <dfn>algoritmo</dfn> es un conjunto finito de instrucciones o reglas.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- small -->
+        <details>
+            <summary>&lt;small&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Representa comentarios secundarios y letras pequeñas, como los derechos de autor y el texto legal. El contenido se suele mostrar con una fuente más pequeña.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;p&gt;&lt;small&gt;&amp;copy; 2025 Mi Compañía. Todos los derechos reservados.&lt;/small&gt;&lt;/p&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p><small>&copy; 2025 Mi Compañía. Todos los derechos reservados.</small></p>
+                </div>
+            </div>
+        </details>
+
+        <!-- sub y sup -->
+        <details>
+            <summary>&lt;sub&gt; y &lt;sup&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong>
+                    <ul>
+                        <li><code>&lt;sub&gt;</code> (subíndice): Define texto en subíndice.</li>
+                        <li><code>&lt;sup&gt;</code> (superíndice): Define texto en superíndice.</li>
+                    </ul>
+                Son útiles para fórmulas químicas, expresiones matemáticas, o notas al pie.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;p&gt;La fórmula del agua es H&lt;sub&gt;2&lt;/sub&gt;O.&lt;/p&gt;
+&lt;p&gt;E = mc&lt;sup&gt;2&lt;/sup&gt;.&lt;/p&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p>La fórmula del agua es H<sub>2</sub>O.</p>
+                    <p>E = mc<sup>2</sup>.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- ins -->
+        <details>
+            <summary>&lt;ins&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Define texto que ha sido insertado en un documento. Los navegadores suelen subrayar el contenido insertado.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;p&gt;El precio es &lt;del&gt;$100&lt;/del&gt; &lt;ins&gt;$75&lt;/ins&gt;.&lt;/p&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p>El precio es <del>$100</del> <ins>$75</ins>.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- del -->
+        <details>
+            <summary>&lt;del&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Define texto que ha sido eliminado de un documento. Los navegadores suelen tachar el contenido eliminado.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;p&gt;El precio es &lt;del&gt;$100&lt;/del&gt; ahora.&lt;/p&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p>El precio es <del>$100</del> ahora.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- mark -->
+        <details>
+            <summary>&lt;mark&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Define texto que debe ser marcado o resaltado, como si se usara un marcador fluorescente. Se utiliza para indicar relevancia o interés.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;p&gt;Por favor, &lt;mark&gt;recuerda leer&lt;/mark&gt; este párrafo.&lt;/p&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p>Por favor, <mark>recuerda leer</mark> este párrafo.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- time -->
+        <details>
+            <summary>&lt;time&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Representa una fecha y/u hora específica. El atributo <code>datetime</code> puede contener la fecha/hora en un formato legible por máquina para herramientas y motores de búsqueda.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;p&gt;El evento es el &lt;time datetime="2025-12-25"&gt;25 de diciembre de 2025&lt;/time&gt;.&lt;/p&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p>El evento es el <time datetime="2025-12-25">25 de diciembre de 2025</time>.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- Parte 3: Multimedia y Tablas -->
+        <h2>Parte 3: Etiquetas de Multimedia y Contenido Embebido</h2>
+
+        <!-- img -->
+        <details>
+            <summary>&lt;img&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Inserta una imagen en el documento. Es una etiqueta de autocierre (vacía). Los atributos <code>src</code> (ruta de la imagen) y <code>alt</code> (texto alternativo para accesibilidad) son los más importantes.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;img src="https://placehold.co/200x120/AEC6CF/white?text=Ejemplo+Imagen" alt="Placeholder de Imagen Cuadrada"&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <img src="https://placehold.co/200x120/AEC6CF/white?text=Ejemplo+Imagen" alt="Placeholder de Imagen Cuadrada" class="rounded shadow-sm">
+                </div>
+            </div>
+        </details>
+
+        <!-- video -->
+        <details>
+            <summary>&lt;video&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Incrusta un reproductor de video en el documento. El atributo <code>controls</code> añade los controles de reproducción estándar (pausa, volumen, etc.). Puedes especificar múltiples fuentes con la etiqueta <code>&lt;source&gt;</code> para compatibilidad con diferentes navegadores.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;video controls width="320" height="240"&gt;
+  &lt;source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4"&gt;
+  Tu navegador no soporta la etiqueta de video.
+&lt;/video&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <video controls class="w-full max-w-sm h-auto rounded shadow-md">
+                        <source src="https://www.w3schools.com/html/mov_bbb.mp4" type="video/mp4">
+                        Tu navegador no soporta la etiqueta de video.
+                    </video>
+                </div>
+            </div>
+        </details>
+
+        <!-- audio -->
+        <details>
+            <summary>&lt;audio&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Incrusta un reproductor de audio en el documento. Similar a <code>&lt;video&gt;</code>, el atributo <code>controls</code> añade los controles de reproducción. También puede usar <code>&lt;source&gt;</code>.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;audio controls&gt;
+  &lt;source src="https://www.w3schools.com/html/horse.mp3" type="audio/mpeg"&gt;
+  Tu navegador no soporta la etiqueta de audio.
+&lt;/audio&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <audio controls class="w-full max-w-sm h-auto rounded shadow-md">
+                        <source src="https://www.w3schools.com/html/horse.mp3" type="audio/mpeg">
+                        Tu navegador no soporta la etiqueta de audio.
+                    </audio>
+                </div>
+            </div>
+        </details>
+
+        <!-- source -->
+        <details>
+            <summary>&lt;source&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Se utiliza dentro de las etiquetas <code>&lt;video&gt;</code> o <code>&lt;audio&gt;</code> para especificar múltiples archivos de origen de medios. El navegador elegirá el formato que mejor soporte. Esto mejora la compatibilidad.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;video controls&gt;
+  &lt;source src="video.mp4" type="video/mp4"&gt;
+  &lt;source src="video.ogg" type="video/ogg"&gt;
+  Tu navegador no soporta el video.
+&lt;/video&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p class="text-sm text-gray-600">La etiqueta <code>&lt;source&gt;</code> no tiene una salida visual directa por sí misma, ya que funciona en conjunto con las etiquetas <code>&lt;video&gt;</code> o <code>&lt;audio&gt;</code> para definir las opciones de archivos multimedia.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- iframe -->
+        <details>
+            <summary>&lt;iframe&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Incrusta otro documento HTML dentro del documento HTML actual. Esto es útil para incrustar mapas, videos de YouTube, o contenido de otras páginas web.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;iframe src="https://www.w3schools.com" width="300" height="200" title="Ejemplo de W3Schools"&gt;&lt;/iframe&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <iframe src="https://www.w3schools.com" width="300" height="200" title="Ejemplo de W3Schools" class="border border-gray-300 rounded shadow-md"></iframe>
+                </div>
+            </div>
+        </details>
+
+        <!-- canvas -->
+        <details>
+            <summary>&lt;canvas&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Proporciona un área de dibujo en la página donde se pueden renderizar gráficos, animaciones, juegos o visualizaciones de datos usando JavaScript. Es un "lienzo" en blanco.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;canvas id="myDrawingCanvas" width="200" height="100" style="border:1px solid #d3d3d3;"&gt;
+  Tu navegador no soporta canvas.
+&lt;/canvas&gt;
+&lt;script&gt;
+  const canvas = document.getElementById('myDrawingCanvas');
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = 'red';
+  ctx.fillRect(20, 20, 150, 50); // Dibuja un rectángulo rojo
+&lt;/script&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output flex-col">
+                    <canvas id="liveDrawingCanvas" width="200" height="100" class="border border-blue-400 bg-blue-50 rounded"></canvas>
+                    <p class="text-xs mt-2 text-gray-500">Un rectángulo rojo dibujado con JavaScript.</p>
+                </div>
+                <script>
+                    // Script para el canvas de ejemplo en vivo
+                    const liveCanvas = document.getElementById('liveDrawingCanvas');
+                    if (liveCanvas) {
+                        const liveCtx = liveCanvas.getContext('2d');
+                        liveCtx.fillStyle = '#ef4444'; // Tailwind red-500
+                        liveCtx.fillRect(20, 20, 150, 50);
+                    }
+                </script>
+            </div>
+        </details>
+
+        <h2>Etiquetas de Tablas</h2>
+
+        <!-- table, thead, tbody, tfoot, tr, th, td, caption -->
+        <details>
+            <summary>&lt;table&gt;, &lt;thead&gt;, &lt;tbody&gt;, &lt;tfoot&gt;, &lt;tr&gt;, &lt;th&gt;, &lt;td&gt;, &lt;caption&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong>
+                    <ul>
+                        <li><code>&lt;table&gt;</code>: El contenedor principal para una tabla de datos.</li>
+                        <li><code>&lt;thead&gt;</code>: Agrupa el contenido de la cabecera de la tabla.</li>
+                        <li><code>&lt;tbody&gt;</code>: Agrupa el contenido principal (filas de datos) de la tabla.</li>
+                        <li><code>&lt;tfoot&gt;</code>: Agrupa el contenido del pie de la tabla (ej. totales).</li>
+                        <li><code>&lt;tr&gt;</code>: Define una fila (Table Row) dentro de la tabla.</li>
+                        <li><code>&lt;th&gt;</code>: Define una celda de encabezado (Table Header). El texto suele estar en negrita y centrado por defecto.</li>
+                        <li><code>&lt;td&gt;</code>: Define una celda de datos (Table Data).</li>
+                        <li><code>&lt;caption&gt;</code>: Proporciona un título o descripción a la tabla, mejorando la accesibilidad.</li>
+                    </ul>
+                </p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;table class="example-table"&gt;
+  &lt;caption&gt;Datos de Productos&lt;/caption&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;Producto&lt;/th&gt;
+      &lt;th&gt;Precio&lt;/th&gt;
+      &lt;th&gt;Stock&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Laptop&lt;/td&gt;
+      &lt;td&gt;$1200&lt;/td&gt;
+      &lt;td&gt;50&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;Mouse&lt;/td&gt;
+      &lt;td&gt;$25&lt;/td&gt;
+      &lt;td&gt;200&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+  &lt;tfoot&gt;
+    &lt;tr&gt;
+      &lt;td colspan="3"&gt;Totales aproximados&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tfoot&gt;
+&lt;/table&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <table class="example-table">
+                        <caption class="text-sm font-semibold mb-2">Datos de Productos</caption>
+                        <thead>
+                            <tr>
+                                <th>Producto</th>
+                                <th>Precio</th>
+                                <th>Stock</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Laptop</td>
+                                <td>$1200</td>
+                                <td>50</td>
+                            </tr>
+                            <tr>
+                                <td>Mouse</td>
+                                <td>$25</td>
+                                <td>200</td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="3" class="text-xs text-gray-500">Totales aproximados</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </details>
+
+        <!-- colgroup y col -->
+        <details>
+            <summary>&lt;colgroup&gt; y &lt;col&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong>
+                    <ul>
+                        <li><code>&lt;colgroup&gt;</code>: Se utiliza para agrupar una o más columnas en una tabla para aplicarles un estilo común. Debe ser el primer hijo de un <code>&lt;table&gt;</code>.</li>
+                        <li><code>&lt;col&gt;</code>: Se utiliza dentro de <code>&lt;colgroup&gt;</code> para definir atributos para una o más columnas. El atributo <code>span</code> indica cuántas columnas abarca.</li>
+                    </ul>
+                Estas etiquetas son útiles para aplicar estilos a columnas completas de forma declarativa.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;table class="example-table"&gt;
+  &lt;colgroup&gt;
+    &lt;col span="2" style="background-color:#e0f2fe"&gt;
+    &lt;col style="background-color:#fff3e0"&gt;
+  &lt;/colgroup&gt;
+  &lt;tr&gt;
+    &lt;th&gt;Nombre&lt;/th&gt;
+    &lt;th&gt;Apellido&lt;/th&gt;
+    &lt;th&gt;Edad&lt;/th&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+    &lt;td&gt;Ana&lt;/td&gt;
+    &lt;td&gt;Gómez&lt;/td&gt;
+    &lt;td&gt;28&lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/table&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <table class="example-table">
+                        <colgroup>
+                            <col span="2" style="background-color:#e0f2fe">
+                            <col style="background-color:#fff3e0">
+                        </colgroup>
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Apellido</th>
+                                <th>Edad</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Ana</td>
+                                <td>Gómez</td>
+                                <td>28</td>
+                            </tr>
+                            <tr>
+                                <td>Luis</td>
+                                <td>Pérez</td>
+                                <td>35</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </details>
+
+        <!-- Parte 4: Formularios -->
+        <h2>Parte 4: Etiquetas de Formularios</h2>
+
+        <!-- form -->
+        <details>
+            <summary>&lt;form&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Define un formulario HTML para la entrada del usuario. Los datos dentro del formulario se pueden enviar a un servidor para su procesamiento. Atributos clave: <code>action</code> (URL a donde se envían los datos) y <code>method</code> (método HTTP: GET o POST).</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;form action="/submit-data" method="post"&gt;
+  &lt;label for="username"&gt;Usuario:&lt;/label&gt;
+  &lt;input type="text" id="username" name="username"&gt;
+  &lt;br&gt;
+  &lt;button type="submit"&gt;Enviar&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <form onsubmit="event.preventDefault(); alert('Formulario simulado enviado!');">
+                        <label for="live-username">Usuario:</label>
+                        <input type="text" id="live-username" name="username" placeholder="Tu usuario">
+                        <button type="submit">Enviar</button>
+                    </form>
+                </div>
+            </div>
+        </details>
+
+        <!-- input -->
+        <details>
+            <summary>&lt;input&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Crea varios tipos de campos de entrada de datos, dependiendo del atributo <code>type</code>. Es una de las etiquetas más versátiles en formularios.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código (ejemplos comunes):</p>
+                <pre><code class="language-html">&lt;input type="text" placeholder="Texto"&gt;
+&lt;input type="password" placeholder="Contraseña"&gt;
+&lt;input type="number" value="10"&gt;
+&lt;input type="email" placeholder="correo@ejemplo.com"&gt;
+&lt;input type="checkbox" checked&gt; Checkbox
+&lt;input type="radio" name="opcion" value="1"&gt; Opción 1
+&lt;input type="submit" value="Enviar Formulario"&gt;
+&lt;input type="date"&gt;
+&lt;input type="color"&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output flex-col items-start">
+                    <label for="live-text-input">Texto:</label>
+                    <input type="text" id="live-text-input" placeholder="Escribe aquí" class="mb-2">
+                    <label for="live-password-input">Contraseña:</label>
+                    <input type="password" id="live-password-input" placeholder="*****" class="mb-2">
+                    <label for="live-number-input">Número:</label>
+                    <input type="number" id="live-number-input" value="42" class="mb-2">
+                    <label for="live-email-input">Email:</label>
+                    <input type="email" id="live-email-input" placeholder="tu@ejemplo.com" class="mb-2">
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" checked> Aceptar términos</label>
+                    </div>
+                    <div class="radio-group">
+                        <label><input type="radio" name="live-radio-option" value="a" checked> Radio A</label>
+                        <label><input type="radio" name="live-radio-option" value="b"> Radio B</label>
+                    </div>
+                    <label for="live-date-input">Fecha:</label>
+                    <input type="date" id="live-date-input" class="mb-2">
+                    <label for="live-color-input">Color:</label>
+                    <input type="color" id="live-color-input" value="#ff0000" class="w-20 h-10">
+                    <input type="submit" value="Enviar Datos" class="mt-4">
+                </div>
+            </div>
+        </details>
+
+        <!-- textarea -->
+        <details>
+            <summary>&lt;textarea&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Define un área de texto de múltiples líneas. Es útil para entradas de usuario que requieren más espacio, como comentarios o mensajes largos. Los atributos <code>rows</code> y <code>cols</code> especifican el número visible de filas y columnas.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;textarea rows="4" cols="50" placeholder="Escribe tu comentario aquí..."&gt;&lt;/textarea&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <textarea rows="4" cols="30" placeholder="Escribe tu comentario aquí..." class="border border-gray-300 p-2 rounded w-full"></textarea>
+                </div>
+            </div>
+        </details>
+
+        <!-- button -->
+        <details>
+            <summary>&lt;button&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Crea un botón clicable. Puede ser de tipo <code>submit</code> (envía el formulario), <code>reset</code> (restablece el formulario) o <code>button</code> (para usar con JavaScript sin enviar/resetear).</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;button type="submit"&gt;Enviar Formulario&lt;/button&gt;
+&lt;button type="button" onclick="alert('Botón JavaScript clicado!')"&gt;Hacer Algo&lt;/button&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 transition-colors">Enviar Formulario</button>
+                    <button type="button" onclick="alert('Botón JavaScript clicado!')" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors">Hacer Algo</button>
+                </div>
+            </div>
+        </details>
+
+        <!-- select y option -->
+        <details>
+            <summary>&lt;select&gt; y &lt;option&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong>
+                    <ul>
+                        <li><code>&lt;select&gt;</code>: Crea una lista desplegable (menú de selección) donde el usuario puede elegir una o varias opciones.</li>
+                        <li><code>&lt;option&gt;</code>: Define una opción individual dentro de una lista desplegable <code>&lt;select&gt;</code>. El atributo <code>value</code> es el dato que se envía si se selecciona esta opción.</li>
+                    </ul>
+                </p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;select name="frutas"&gt;
+  &lt;option value="manzana"&gt;Manzana&lt;/option&gt;
+  &lt;option value="platano"&gt;Plátano&lt;/option&gt;
+  &lt;option value="cereza" selected&gt;Cereza&lt;/option&gt;
+&lt;/select&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <select name="live-frutas" class="border border-gray-300 p-2 rounded">
+                        <option value="manzana">Manzana</option>
+                        <option value="platano">Plátano</option>
+                        <option value="cereza" selected>Cereza</option>
+                    </select>
+                </div>
+            </div>
+        </details>
+
+        <!-- label -->
+        <details>
+            <summary>&lt;label&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Define una etiqueta de texto para un elemento de formulario (como <code>&lt;input&gt;</code>, <code>&lt;textarea&gt;</code>, <code>&lt;select&gt;</code>). Al hacer clic en la etiqueta, el control asociado se enfoca. Esto mejora la accesibilidad. Se asocia mediante el atributo <code>for</code> con el <code>id</code> del elemento de formulario.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;label for="email-field"&gt;Correo Electrónico:&lt;/label&gt;
+&lt;input type="email" id="email-field" name="email"&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output flex-col items-start">
+                    <label for="live-email-field" class="font-bold text-gray-700">Correo Electrónico:</label>
+                    <input type="email" id="live-email-field" name="email" placeholder="ejemplo@dominio.com" class="w-full">
+                </div>
+            </div>
+        </details>
+
+        <!-- fieldset y legend -->
+        <details>
+            <summary>&lt;fieldset&gt; y &lt;legend&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong>
+                    <ul>
+                        <li><code>&lt;fieldset&gt;</code>: Se utiliza para agrupar elementos relacionados en un formulario. Dibuja un recuadro alrededor de los elementos agrupados.</li>
+                        <li><code>&lt;legend&gt;</code>: Proporciona una leyenda (título) para el contenido del <code>&lt;fieldset&gt;</code>.</li>
+                    </ul>
+                Estas etiquetas mejoran la estructura semántica y la accesibilidad de los formularios complejos.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;fieldset&gt;
+  &lt;legend&gt;Información Personal&lt;/legend&gt;
+  &lt;label for="nombre"&gt;Nombre:&lt;/label&gt;
+  &lt;input type="text" id="nombre" name="nombre"&gt;
+  &lt;br&gt;
+  &lt;label for="edad"&gt;Edad:&lt;/label&gt;
+  &lt;input type="number" id="edad" name="edad"&gt;
+&lt;/fieldset&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output flex-col items-start">
+                    <fieldset class="border border-gray-400 p-4 rounded-md w-full">
+                        <legend class="px-2 text-lg font-semibold text-gray-800">Información Personal</legend>
+                        <label for="live-fieldset-nombre">Nombre:</label>
+                        <input type="text" id="live-fieldset-nombre" name="nombre" class="mb-2">
+                        <label for="live-fieldset-edad">Edad:</label>
+                        <input type="number" id="live-fieldset-edad" name="edad">
+                    </fieldset>
+                </div>
+            </div>
+        </details>
+
+        <!-- datalist y option -->
+        <details>
+            <summary>&lt;datalist&gt; y &lt;option&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong>
+                    <ul>
+                        <li><code>&lt;datalist&gt;</code>: Contiene una lista de opciones predefinidas para un campo de entrada.</li>
+                        <li><code>&lt;option&gt;</code>: Define una opción dentro de la lista de datos.</li>
+                    </ul>
+                Proporciona sugerencias de autocompletado a un campo <code>&lt;input&gt;</code> sin restringir los valores que el usuario puede ingresar. Se conecta a un <code>&lt;input&gt;</code> mediante el atributo <code>list</code>.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;label for="navegador"&gt;Elige un navegador:&lt;/label&gt;
+&lt;input list="navegadores" id="navegador" name="navegador"&gt;
+&lt;datalist id="navegadores"&gt;
+  &lt;option value="Chrome"&gt;
+  &lt;option value="Firefox"&gt;
+  &lt;option value="Edge"&gt;
+&lt;/datalist&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output flex-col items-start">
+                    <label for="live-navegador">Elige un navegador:</label>
+                    <input list="live-navegadores" id="live-navegador" name="navegador" class="w-full">
+                    <datalist id="live-navegadores">
+                        <option value="Chrome">
+                        <option value="Firefox">
+                        <option value="Edge">
+                        <option value="Safari">
+                    </datalist>
+                    <p class="text-xs mt-2 text-gray-500">Intenta escribir para ver las sugerencias.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- output -->
+        <details>
+            <summary>&lt;output&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Representa el resultado de un cálculo o la acción de un usuario. Es útil para mostrar el resultado de un script de forma dinámica sin recargar la página.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;form oninput="resultado.value=parseInt(a.value)+parseInt(b.value)"&gt;
+  &lt;input type="number" id="a" value="10"&gt; +
+  &lt;input type="number" id="b" value="20"&gt; =
+  &lt;output name="resultado" for="a b"&gt;&lt;/output&gt;
+&lt;/form&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo (interactiva):</p>
+                <div class="example-output">
+                    <form oninput="liveResult.value = parseInt(liveA.value) + parseInt(liveB.value)" class="flex items-center justify-center gap-2 border-none p-0">
+                        <input type="number" id="liveA" value="10" class="w-20 example-input">
+                        <span class="text-xl font-bold">+</span>
+                        <input type="number" id="liveB" value="20" class="w-20 example-input">
+                        <span class="text-xl font-bold">=</span>
+                        <output name="liveResult" for="liveA liveB" class="text-xl font-bold text-blue-700">30</output>
+                    </form>
+                    <p class="text-xs mt-2 text-gray-500 w-full text-center">Cambia los números para ver el resultado.</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- Parte 5: Scripting y Semánticas HTML5 -->
+        <h2>Parte 5: Etiquetas de Scripting</h2>
+
+        <!-- script -->
+        <details>
+            <summary>&lt;script&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Se utiliza para incrustar código JavaScript directamente en el documento HTML o para vincular un archivo JavaScript externo. Permite añadir interactividad y lógica dinámica a la página web.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código (incrustado):</p>
+                <pre><code class="language-html">&lt;script&gt;
+  console.log("¡Hola desde JavaScript en la consola!");
+  // Aquí puedes escribir código JavaScript
+&lt;/script&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código (externo):</p>
+                <pre><code class="language-html">&lt;script src="ruta/a/mi-script.js"&gt;&lt;/script&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p class="text-sm text-gray-600">La etiqueta <code>&lt;script&gt;</code> no tiene una salida visual directa en la página, pero su código JavaScript puede manipular elementos visuales o añadir interactividad (como el botón de animación al final de este documento).</p>
+                    <p class="text-sm text-gray-600">Abre la consola de tu navegador (F12) para ver el mensaje "¡Hola desde JavaScript en la consola!".</p>
+                    <script>
+                        // Esto se ejecutará y enviará a la consola del navegador
+                        console.log("¡Hola desde JavaScript en la consola! (Ejemplo de <script>)");
+                    </script>
+                </div>
+            </div>
+        </details>
+
+        <!-- noscript -->
+        <details>
+            <summary>&lt;noscript&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Define un contenido alternativo que se muestra si el navegador del usuario no soporta JavaScript, o si JavaScript está deshabilitado en el navegador. Proporciona un mensaje de respaldo.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;noscript&gt;
+  &lt;p&gt;Por favor, habilita JavaScript para ver todo el contenido de esta página.&lt;/p&gt;
+&lt;/noscript&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output">
+                    <p class="text-sm text-gray-600">Dado que JavaScript está habilitado en este entorno, el contenido de <code>&lt;noscript&gt;</code> no es visible.</p>
+                    <noscript>
+                        <p class="text-red-600 font-bold">¡JavaScript está deshabilitado en tu navegador!</p>
+                    </noscript>
+                </div>
+            </div>
+        </details>
+
+        <h2>Etiquetas Semánticas (HTML5)</h2>
+        <p class="mb-4 text-gray-700">
+            Estas etiquetas introducidas en HTML5 no solo estructuran el contenido, sino que también le dan un significado contextual
+            o "semántico" al mismo. Esto es crucial para la accesibilidad (lectores de pantalla) y para la optimización de motores de búsqueda (SEO).
+        </p>
+
+        <!-- header -->
+        <details>
+            <summary>&lt;header&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Representa el contenido introductorio o un grupo de elementos de navegación para un documento o una sección. Usualmente contiene encabezados (<code>h1</code>-<code>h6</code>), logotipos, iconos y/o enlaces de navegación (<code>nav</code>).</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;header&gt;
+  &lt;h1&gt;Mi Gran Sitio Web&lt;/h1&gt;
+  &lt;nav&gt;
+    &lt;a href="#"&gt;Inicio&lt;/a&gt; | &lt;a href="#"&gt;Contacto&lt;/a&gt;
+  &lt;/nav&gt;
+&lt;/header&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output flex-col items-start">
+                    <header class="w-full text-center py-2 bg-blue-100 border-b border-blue-300 rounded">
+                        <h4 class="font-semibold text-blue-800">Mi Sitio Web</h4>
+                        <nav class="mt-1"><a href="#" class="text-blue-600">Inicio</a> | <a href="#" class="text-blue-600">Acerca</a></nav>
+                    </header>
+                    <p class="text-sm text-gray-600 p-2">Contenido principal...</p>
+                </div>
+            </div>
+        </details>
+
+        <!-- nav -->
+        <details>
+            <summary>&lt;nav&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Representa una sección de un documento que contiene enlaces de navegación principales a otras partes de la página o a otros documentos. Es para bloques de navegación importantes.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;nav&gt;
+  &lt;ul&gt;
+    &lt;li&gt;&lt;a href="#"&gt;Home&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;a href="#"&gt;Productos&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/nav&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output bg-gray-50 border border-gray-200">
+                    <nav class="p-2">
+                        <ul class="flex space-x-4">
+                            <li><a href="#" class="text-blue-600 hover:underline">Home</a></li>
+                            <li><a href="#" class="text-blue-600 hover:underline">Servicios</a></li>
+                            <li><a href="#" class="text-blue-600 hover:underline">Contacto</a></li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </details>
+
+        <!-- main -->
+        <details>
+            <summary>&lt;main&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Representa el contenido dominante o la funcionalidad central del <code>&lt;body&gt;</code> de un documento. Debe haber solo un elemento <code>&lt;main&gt;</code> en un documento HTML, y su contenido debe ser único y no repetitivo (ej. no incluir barras laterales o pies de página).</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;main&gt;
+  &lt;h1&gt;Título del Contenido Principal&lt;/h1&gt;
+  &lt;p&gt;Este es el contenido más importante y relevante de la página.&lt;/p&gt;
+&lt;/main&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output flex-col items-start bg-green-50 border border-green-200">
+                    <main class="w-full p-2">
+                        <h4 class="font-semibold text-green-800">Contenido Principal de la Página</h4>
+                        <p class="text-sm text-gray-700">Aquí va la información más importante y única de la página.</p>
+                    </main>
+                </div>
+            </div>
+        </details>
+
+        <!-- article -->
+        <details>
+            <summary>&lt;article&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Representa una composición auto-contenida en un documento, página, aplicación o sitio. Destinada a ser distribuible o reutilizable de forma independiente, como una entrada de foro, un artículo de revista o periódico, una entrada de blog, un comentario de usuario, un widget o cualquier otro elemento de contenido independiente.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;article&gt;
+  &lt;h2&gt;Título del Artículo de Blog&lt;/h2&gt;
+  &lt;p&gt;Este es el contenido de mi artículo.&lt;/p&gt;
+  &lt;footer&gt;Publicado el 22 de junio de 2025&lt;/footer&gt;
+&lt;/article&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output flex-col items-start bg-purple-50 border border-purple-200">
+                    <article class="w-full p-2">
+                        <h4 class="font-semibold text-purple-800">Mi Última Publicación</h4>
+                        <p class="text-sm text-gray-700">Contenido interesante de la publicación...</p>
+                        <footer class="text-xs text-gray-500 mt-2">Por Autor, 22 de junio de 2025</footer>
+                    </article>
+                </div>
+            </div>
+        </details>
+
+        <!-- section -->
+        <details>
+            <summary>&lt;section&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Representa una sección genérica de un documento. Se usa para agrupar contenido relacionado temáticamente. No es un contenedor genérico como <code>&lt;div&gt;</code>; cada <code>&lt;section&gt;</code> generalmente debe tener un encabezado (<code>h1</code>-<code>h6</code>).</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;section&gt;
+  &lt;h2&gt;Acerca de Nosotros&lt;/h2&gt;
+  &lt;p&gt;Somos una empresa dedicada a...&lt;/p&gt;
+&lt;/section&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output flex-col items-start bg-yellow-50 border border-yellow-200">
+                    <section class="w-full p-2">
+                        <h4 class="font-semibold text-yellow-800">Nuestros Servicios</h4>
+                        <p class="text-sm text-gray-700">Ofrecemos soluciones innovadoras para sus necesidades.</p>
+                    </section>
+                </div>
+            </div>
+        </details>
+
+        <!-- aside -->
+        <details>
+            <summary>&lt;aside&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Representa una parte de un documento cuyo contenido está indirectamente relacionado con el contenido principal del documento. A menudo se presenta como una barra lateral, un bloque de citas, o un cuadro de información destacada.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;aside&gt;
+  &lt;h3&gt;Notas Relacionadas&lt;/h3&gt;
+  &lt;p&gt;Aquí un dato interesante adicional.&lt;/p&gt;
+&lt;/aside&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output flex-col items-start bg-orange-50 border border-orange-200">
+                    <aside class="w-full p-2">
+                        <h4 class="font-semibold text-orange-800">Consejo del Día</h4>
+                        <p class="text-sm text-gray-700">Recuerda siempre validar tu HTML.</p>
+                    </aside>
+                </div>
+            </div>
+        </details>
+
+        <!-- footer -->
+        <details>
+            <summary>&lt;footer&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong> Representa el pie de página de un documento o una sección. Generalmente contiene información sobre el autor, derechos de autor, enlaces a documentos relacionados, etc.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;footer&gt;
+  &lt;p&gt;&amp;copy; 2025 Mi Compañía. Todos los derechos reservados.&lt;/p&gt;
+  &lt;a href="#"&gt;Términos y Condiciones&lt;/a&gt;
+&lt;/footer&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output flex-col items-start bg-gray-100 border border-gray-300">
+                    <footer class="w-full text-center py-2 bg-gray-200 border-t border-gray-400 text-sm text-gray-700">
+                        <p>&copy; 2025 Mi Compañía. Todos los derechos reservados.</p>
+                        <p><a href="#" class="text-blue-600 hover:underline">Política de Privacidad</a></p>
+                    </footer>
+                </div>
+            </div>
+        </details>
+
+        <!-- figure y figcaption -->
+        <details>
+            <summary>&lt;figure&gt; y &lt;figcaption&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong>
+                    <ul>
+                        <li><code>&lt;figure&gt;</code>: Representa contenido auto-contenido, como ilustraciones, diagramas, fotos, bloques de código, etc., que se referencia desde el flujo principal del documento, pero que podría ser movido a otro lugar sin afectar el flujo del documento.</li>
+                        <li><code>&lt;figcaption&gt;</code>: Proporciona una leyenda o título para el contenido de un <code>&lt;figure&gt;</code>.</li>
+                    </ul>
+                </p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;figure&gt;
+  &lt;img src="https://placehold.co/150x100/green/white?text=Gráfico" alt="Un gráfico de ejemplo"&gt;
+  &lt;figcaption&gt;Figura 1: Un gráfico ilustrativo.&lt;/figcaption&gt;
+&lt;/figure&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo:</p>
+                <div class="example-output flex-col items-start bg-blue-50 border border-blue-200">
+                    <figure class="w-full flex flex-col items-center">
+                        <img src="https://placehold.co/150x100/green/white?text=Gráfico" alt="Un gráfico de ejemplo" class="rounded shadow-sm mb-2">
+                        <figcaption class="text-sm italic text-gray-700">Figura 1: Un gráfico ilustrativo.</figcaption>
+                    </figure>
+                </div>
+            </div>
+        </details>
+
+        <!-- details y summary -->
+        <details>
+            <summary>&lt;details&gt; y &lt;summary&gt;</summary>
+            <div class="tag-content">
+                <p><strong>Función:</strong>
+                    <ul>
+                        <li><code>&lt;details&gt;</code>: Crea un widget de divulgación a partir del cual el usuario puede obtener o establecer información adicional.</li>
+                        <li><code>&lt;summary&gt;</code>: Proporciona un resumen o título visible para el contenido de <code>&lt;details&gt;</code>. Cuando el usuario hace clic en el resumen, el contenido oculto se expande o colapsa.</li>
+                    </ul>
+                Estas son las etiquetas que estoy usando para hacer cada sección colapsable en este mismo documento.</p>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Código:</p>
+                <pre><code class="language-html">&lt;details&gt;
+  &lt;summary&gt;Haz clic para más información&lt;/summary&gt;
+  &lt;p&gt;Este es el contenido que se oculta/muestra.&lt;/p&gt;
+&lt;/details&gt;</code></pre>
+                <p class="font-bold text-blue-800 mt-4 mb-2">Salida en vivo (interactiva):</p>
+                <div class="example-output flex-col items-start">
+                    <details class="w-full bg-indigo-50 border border-indigo-200 rounded-md">
+                        <summary class="text-indigo-700 font-semibold p-2 cursor-pointer">Haz clic para revelar el secreto</summary>
+                        <p class="p-2 text-sm text-gray-700">¡Sorpresa! Este contenido estaba oculto hasta que hiciste clic.</p>
+                    </details>
+                </div>
+            </div>
+        </details>
+
+        <!-- Sección de Animación General -->
+        <section>
+            <h2>Demostración General de Animación y Control con JavaScript</h2>
+            <p class="mb-4 text-gray-700">
+                Esta sección ilustra cómo las etiquetas HTML (en este caso, <code>&lt;div&gt;</code>s y un <code>&lt;button&gt;</code>)
+                sirven como el lienzo para estilos CSS y lógica de JavaScript para crear animaciones y experiencias interactivas.
+                Haz clic en el botón para iniciar/detener un movimiento aleatorio, y pasa el ratón sobre los cuadrados para un efecto de escala.
+            </p>
+
+            <div class="animation-container" id="animationContainer">
+                <div class="animated-element" id="elementA">HTML</div>
+                <div class="animated-element" id="elementB">CSS</div>
+                <div class="animated-element" id="elementC">JS</div>
+            </div>
+            <div class="animation-controls">
+                <button class="animation-button" id="toggleGlobalAnimation">Iniciar Animación Global</button>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Script para la animación general
+        const elementA = document.getElementById('elementA');
+        const elementB = document.getElementById('elementB');
+        const elementC = document.getElementById('elementC');
+        const toggleGlobalButton = document.getElementById('toggleGlobalAnimation');
+        const animationContainer = document.getElementById('animationContainer'); // Referencia al contenedor para límites
+
+        let isGlobalAnimating = false;
+        let globalAnimationInterval;
+
+        function startGlobalAnimation() {
+            if (isGlobalAnimating) return;
+
+            isGlobalAnimating = true;
+            toggleGlobalButton.textContent = 'Detener Animación Global';
+            elementA.classList.add('active');
+            elementB.classList.add('active');
+            elementC.classList.add('active');
+
+            globalAnimationInterval = setInterval(() => {
+                const elements = [elementA, elementB, elementC];
+                elements.forEach(el => {
+                    // Calcular límites dinámicamente
+                    const maxX = animationContainer.clientWidth - el.offsetWidth;
+                    const maxY = animationContainer.clientHeight - el.offsetHeight;
+
+                    // Asegurarse de que los valores sean no negativos
+                    const randomX = Math.max(0, Math.random() * maxX);
+                    const randomY = Math.max(0, Math.random() * maxY);
+
+                    el.style.position = 'absolute'; // Necesario para posicionamiento absoluto
+                    el.style.left = `${randomX}px`;
+                    el.style.top = `${randomY}px`;
+                    el.style.backgroundColor = `hsl(${Math.random() * 360}, 70%, 60%)`; // Color aleatorio
+                });
+            }, 1500); // Mueve cada 1.5 segundos
+        }
+
+        function stopGlobalAnimation() {
+            isGlobalAnimating = false;
+            toggleGlobalButton.textContent = 'Iniciar Animación Global';
+            clearInterval(globalAnimationInterval);
+            // Restablecer estilos
+            const elements = [elementA, elementB, elementC];
+            elements.forEach(el => {
+                el.classList.remove('active');
+                el.style.position = 'relative'; // Volver a posición relativa si es necesario
+                el.style.left = '';
+                el.style.top = '';
+                el.style.transform = 'scale(1) rotate(0deg)'; // Asegurarse de quitar efectos de hover/active
+                el.style.backgroundColor = '#ecc94b';
+            });
+        }
+
+        toggleGlobalButton.addEventListener('click', () => {
+            if (isGlobalAnimating) {
+                stopGlobalAnimation();
+            } else {
+                startGlobalAnimation();
+            }
+        });
+
+        // Detener animación al cerrar/recargar la página
+        window.addEventListener('beforeunload', stopGlobalAnimation);
+    </script>
+</body>
+</html>

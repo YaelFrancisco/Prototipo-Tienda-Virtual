@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin CRUD - Natlan Studios</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="img/logo-001.jpg">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f8fafc;
+        }
+        .container {
+            max-width: 900px;
+            margin: 2rem auto;
+            padding: 2rem;
+            background-color: #1e293b;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2);
+        }
+        h1, h2 {
+            color: #6ee7b7;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #cbd5e0;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #4a5568;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .btn-primary {
+            background-color: #10b981;
+            color: #0f172a;
+        }
+        .btn-primary:hover {
+            background-color: #059669;
+        }
+        .btn-danger {
+            background-color: #ef4444;
+            color: #f8fafc;
+        }
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+        .btn-warning {
+            background-color: #f59e0b;
+            color: #0f172a;
+        }
+        .btn-warning:hover {
+            background-color: #d97706;
+        }
+        .message-box {
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            text-align: center;
+            font-weight: bold;
+        }
+        .message-success {
+            background-color: #10b981;
+            color: #0f172a;
+        }
+        .message-error {
+            background-color: #ef4444;
+            color: #f8fafc;
+        }
+        .hidden {
+            display: none;
+        }
+
+        /* --- Estilos específicos para la tabla de usuarios --- */
+        .table-auto {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+        .table-auto th, .table-auto td {
+            padding: 0.75rem;
+            border: 1px solid #4a5568;
+            text-align: left;
+            vertical-align: middle; /* Alineación vertical para el contenido de la celda */
+        }
+        .table-auto th {
+            background-color: #2d3748;
+            color: #6ee7b7;
+        }
+        .table-auto td {
+            background-color: #1a202c;
+        }
+
+        /* Estilo para los campos de input dentro de las celdas de la tabla */
+        .table-auto td .input-field {
+            background-color: #0f172a; /* Fondo más oscuro para distinguir */
+            border: 1px solid #4a5568; /* Borde sutil */
+            border-radius: 0.25rem; /* Menos redondeado para encajar mejor */
+            padding: 0.3rem 0.5rem; /* Padding más pequeño para tabla */
+            width: 100%;
+            box-sizing: border-box; /* Asegura que padding y border se incluyan en el ancho */
+            color: #f8fafc;
+            line-height: normal; /* Restablecer para consistencia */
+        }
+        .table-auto td .input-field:focus {
+            outline: none;
+            border-color: #6ee7b7; /* Teal en foco */
+            box-shadow: 0 0 0 1px rgba(110, 231, 183, 0.5); /* Sombra más pequeña en foco */
+        }
+
+        /* Estilo para los botones dentro de las celdas de la tabla */
+        .table-auto td button {
+            margin: 0.2rem; /* Pequeño margen entre botones */
+            padding: 0.4rem 0.8rem; /* Padding más pequeño para botones de tabla */
+            font-size: 0.875rem; /* Tamaño de fuente más pequeño (text-sm) */
+            line-height: 1; /* Ajustar altura de línea para botones pequeños */
+        }
+
+        /* Responsive para tablas en pantallas pequeñas */
+        @media (max-width: 768px) {
+            .table-auto thead {
+                display: none; /* Oculta el encabezado de la tabla en móviles */
+            }
+            .table-auto, .table-auto tbody, .table-auto tr, .table-auto td {
+                display: block; /* Hace que las filas y celdas se apilen */
+                width: 100%;
+            }
+            .table-auto tr {
+                margin-bottom: 1rem;
+                border: 1px solid #4a5568;
+                border-radius: 0.5rem;
+                overflow: hidden;
+            }
+            .table-auto td {
+                text-align: right;
+                padding-left: 50%; /* Espacio para la etiqueta */
+                position: relative;
+                border: none;
+            }
+            .table-auto td::before {
+                content: attr(data-label); /* Usa el atributo data-label para mostrar la etiqueta */
+                position: absolute;
+                left: 0.75rem;
+                width: calc(50% - 1.5rem);
+                text-align: left;
+                font-weight: bold;
+                color: #6ee7b7;
+            }
+            /* Ocultar el ID en móvil si es solo para referencia interna */
+            .table-auto td[data-id]::before {
+                content: 'ID:'; /* Etiqueta específica para ID */
+            }
+            .table-auto td:last-child {
+                text-align: center; /* Centrar botones de acción en móvil */
+            }
+            .table-auto td .input-field {
+                width: calc(100% - 0.75rem); /* Ajuste del ancho para input dentro de la celda */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-4xl font-bold mb-8">Panel de Administración CRUD</h1>
+
+        <!-- Botón para ir al Index -->
+        <button onclick="window.location.href='index.html'" class="btn btn-primary mb-8">
+            Ir a la Página Principal
+        </button>
+
+        <!-- CRUD Section (No longer hidden by default as login is handled externally) -->
+        <div id="crud-section">
+            <h2 class="text-3xl font-bold mb-6">Gestión de Usuarios</h2>
+            <div id="crud-message" class="message-box hidden"></div>
+
+            <!-- Add User Form -->
+            <h3 class="text-2xl font-bold text-teal-400 mb-4">Añadir Nuevo Usuario</h3>
+            <form id="add-user-form" class="space-y-4 mb-8">
+                <div class="form-group">
+                    <label for="new_username">Nombre de Usuario:</label>
+                    <input type="text" id="new_username" name="nombre_usuario" required class="input-field">
+                </div>
+                <div class="form-group">
+                    <label for="new_email">Correo Electrónico:</label>
+                    <input type="email" id="new_email" name="correo_electronico" required class="input-field">
+                </div>
+                <div class="form-group">
+                    <label for="new_password">Contraseña:</label>
+                    <input type="password" id="new_password" name="contrasena" required class="input-field">
+                </div>
+                <button type="submit" class="btn btn-primary w-full">Añadir Usuario</button>
+            </form>
+
+            <!-- Users List Table -->
+            <h3 class="text-2xl font-bold text-teal-400 mb-4">Usuarios Existentes</h3>
+            <div class="overflow-x-auto">
+                <table class="table-auto">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre de Usuario</th>
+                            <th>Correo Electrónico</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body">
+                        <!-- User rows will be loaded here by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const USERS_KEY = 'natlan_mock_users';
+        const crudSection = document.getElementById('crud-section');
+        const crudMessage = document.getElementById('crud-message');
+        const addUserForm = document.getElementById('add-user-form');
+        const usersTableBody = document.getElementById('users-table-body');
+
+        function getUsers() {
+            const users = JSON.parse(localStorage.getItem(USERS_KEY) || '[]');
+            if (users.length === 0) {
+                const defaultUsers = [
+                    { id_usuario: 1, nombre_usuario: 'admin', correo_electronico: 'admin@natlan.com', contrasena: 'admin123' },
+                    { id_usuario: 2, nombre_usuario: 'usuario', correo_electronico: 'usuario@natlan.com', contrasena: 'usuario123' }
+                ];
+                localStorage.setItem(USERS_KEY, JSON.stringify(defaultUsers));
+                return defaultUsers;
+            }
+            return users;
+        }
+
+        function saveUsers(users) {
+            localStorage.setItem(USERS_KEY, JSON.stringify(users));
+        }
+
+        function displayMessage(element, message, isSuccess) {
+            element.textContent = message;
+            element.classList.remove('hidden');
+            element.classList.toggle('message-success', isSuccess);
+            element.classList.toggle('message-error', !isSuccess);
+            setTimeout(() => {
+                element.classList.add('hidden');
+            }, 3000);
+        }
+
+        function loadUsers() {
+            const users = getUsers();
+            usersTableBody.innerHTML = '';
+            users.forEach(user => {
+                const row = usersTableBody.insertRow();
+                row.innerHTML = `
+                    <td data-label="ID" data-id="${user.id_usuario}">${user.id_usuario}</td>
+                    <td data-label="Nombre de Usuario"><input type="text" class="input-field bg-transparent border-none w-full" value="${user.nombre_usuario}" data-field="nombre_usuario"></td>
+                    <td data-label="Correo Electrónico"><input type="email" class="input-field bg-transparent border-none w-full" value="${user.correo_electronico}" data-field="correo_electronico"></td>
+                    <td data-label="Acciones" class="whitespace-nowrap">
+                        <button class="btn btn-warning btn-sm update-btn" data-id="${user.id_usuario}">Actualizar</button>
+                        <button class="btn btn-danger btn-sm delete-btn" data-id="${user.id_usuario}">Eliminar</button>
+                    </td>
+                `;
+            });
+            attachUserRowEvents();
+        }
+
+        function attachUserRowEvents() {
+            document.querySelectorAll('.update-btn').forEach(button => {
+                button.onclick = function() {
+                    const id = Number(this.dataset.id);
+                    const row = this.closest('tr');
+                    const username = row.querySelector('input[data-field="nombre_usuario"]').value.trim();
+                    const email = row.querySelector('input[data-field="correo_electronico"]').value.trim();
+                    const users = getUsers();
+                    const index = users.findIndex(user => user.id_usuario === id);
+
+                    if (index === -1) return;
+
+                    users[index].nombre_usuario = username || users[index].nombre_usuario;
+                    users[index].correo_electronico = email || users[index].correo_electronico;
+                    saveUsers(users);
+                    displayMessage(crudMessage, 'Usuario actualizado correctamente.', true);
+                    loadUsers();
+                };
+            });
+
+            document.querySelectorAll('.delete-btn').forEach(button => {
+                button.onclick = function() {
+                    const id = Number(this.dataset.id);
+                    if (!confirm('¿Estás seguro de que quieres eliminar este usuario?')) return;
+
+                    const users = getUsers().filter(user => user.id_usuario !== id);
+                    saveUsers(users);
+                    displayMessage(crudMessage, 'Usuario eliminado.', true);
+                    loadUsers();
+                };
+            });
+        }
+
+        addUserForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const formData = new FormData(addUserForm);
+            const username = (formData.get('nombre_usuario') || '').toString().trim();
+            const email = (formData.get('correo_electronico') || '').toString().trim();
+            const password = (formData.get('contrasena') || '').toString();
+            const users = getUsers();
+
+            if (!username || !email || !password) {
+                displayMessage(crudMessage, 'Completa todos los campos del formulario.', false);
+                return;
+            }
+
+            if (users.some(user => user.correo_electronico.toLowerCase() === email.toLowerCase())) {
+                displayMessage(crudMessage, 'Ya existe un usuario con ese correo.', false);
+                return;
+            }
+
+            users.push({
+                id_usuario: Date.now(),
+                nombre_usuario: username,
+                correo_electronico: email,
+                contrasena: password
+            });
+
+            saveUsers(users);
+            addUserForm.reset();
+            displayMessage(crudMessage, 'Usuario añadido correctamente.', true);
+            loadUsers();
+        });
+
+        document.addEventListener('DOMContentLoaded', loadUsers);
+    </script>
+</body>
+</html>

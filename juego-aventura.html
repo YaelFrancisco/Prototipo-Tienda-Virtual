@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aventura Épica: La Cripta Olvidada</title>
+    <!-- Google Fonts: Inter para el texto principal y Cinzel Decorative para títulos para un toque épico -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&family=Cinzel+Decorative:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="img/logo-001.jpg">
+    <style>
+        /* Estilos generales del cuerpo */
+        body {
+            font-family: 'Inter', sans-serif; /* Fuente principal */
+            background-color: #1a1a2e; /* Color de fondo oscuro */
+            color: #e0e0e0; /* Color de texto claro */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Alinear al inicio para dejar espacio en la parte superior */
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            background-image: url('https://placehold.co/1920x1080/2a0000/e0e0e0?text=Antigua+Cripta'); /* Imagen de fondo de placeholder [Image of Ancient Crypt] */
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: multiply; /* Mezclar la imagen con el color de fondo */
+            background-color: #2a0000; /* Superposición de color para la imagen */
+            overflow-y: auto; /* Permitir scroll si el contenido es largo */
+        }
+
+        /* Contenedor principal del juego */
+        .game-container {
+            background-color: rgba(0, 0, 0, 0.75); /* Fondo semitransparente para el contenedor */
+            border: 2px solid #5a0000; /* Borde temático */
+            border-radius: 15px; /* Bordes redondeados */
+            padding: 25px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8); /* Sombra dramática */
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 50px; /* Margen superior para centrar verticalmente si el contenido es corto */
+        }
+
+        /* Título del juego */
+        h1 {
+            font-family: 'Cinzel Decorative', serif; /* Fuente decorativa para el título */
+            color: #ffcc00; /* Color dorado */
+            text-align: center;
+            margin-bottom: 25px;
+            text-shadow: 0 0 15px rgba(255, 204, 0, 0.6); /* Sombra de texto brillante */
+            font-size: 2.5em; /* Tamaño de fuente grande para el título */
+        }
+
+        /* Área de visualización del juego (descripción de la sala y mensajes) */
+        .game-display {
+            background-color: #0d0d1a; /* Fondo más oscuro para el área de texto */
+            border: 1px solid #3a0000; /* Borde sutil */
+            border-radius: 10px;
+            padding: 20px;
+            min-height: 150px;
+            overflow-y: auto; /* Permitir scroll si el texto es largo */
+            font-size: 1.1em;
+            line-height: 1.6;
+            color: #c0c0c0; /* Texto ligeramente más claro */
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5); /* Sombra interior */
+        }
+
+        .game-display p {
+            margin-bottom: 10px;
+        }
+
+        .game-display p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Estilo para mensajes de "historia" */
+        .story-text {
+            color: #e0e0e0;
+            font-weight: 400;
+        }
+
+        /* Estilo para mensajes de "juego" (acciones, errores) */
+        .game-message {
+            color: #ff8c00; /* Naranja para mensajes del juego */
+            font-weight: 700;
+        }
+
+        /* Área de controles (botones y entrada de comandos) */
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Grupo de botones de movimiento */
+        .movement-buttons, .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Columnas responsivas */
+            gap: 10px;
+        }
+
+        /* Estilo de los botones */
+        button {
+            background-color: #8b0000; /* Rojo oscuro */
+            color: #fff;
+            border: none;
+            border-radius: 8px; /* Bordes redondeados */
+            padding: 12px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5); /* Sombra suave */
+            font-family: 'Inter', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button:hover {
+            background-color: #a00000; /* Rojo más claro al pasar el ratón */
+            transform: translateY(-2px); /* Efecto de elevación */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+        }
+
+        button:active {
+            background-color: #6a0000; /* Rojo más oscuro al hacer clic */
+            transform: translateY(0); /* Vuelve a la posición original */
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Campo de entrada de texto */
+        .command-input {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: #0d0d1a;
+            border: 1px solid #3a0000;
+            border-radius: 8px;
+            color: #e0e0e0;
+            font-size: 1em;
+            box-sizing: border-box; /* Incluir padding en el ancho */
+        }
+
+        .command-input::placeholder {
+            color: #707070;
+        }
+
+        .command-input:focus {
+            outline: none;
+            border-color: #ffcc00; /* Borde dorado al enfocar */
+            box-shadow: 0 0 10px rgba(255, 204, 0, 0.5);
+        }
+
+        /* Sección de inventario */
+        .inventory {
+            background-color: #0d0d1a;
+            border: 1px solid #3a0000;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 0.95em;
+            color: #c0c0c0;
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .inventory h3 {
+            font-family: 'Cinzel Decorative', serif;
+            color: #ffcc00;
+            margin-top: 0;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .inventory ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-wrap: wrap; /* Permitir que los elementos se envuelvan */
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .inventory li {
+            background-color: #5a0000;
+            padding: 6px 12px;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 0.9em;
+            white-space: nowrap; /* Evitar que el texto se rompa */
+        }
+
+        /* Media queries para responsividad */
+        @media (max-width: 768px) {
+            .game-container {
+                margin-top: 20px;
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 1.8em;
+            }
+
+            .game-display, .inventory {
+                padding: 15px;
+            }
+
+            button {
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+
+            .movement-buttons, .action-buttons {
+                grid-template-columns: 1fr; /* Columnas apiladas en pantallas pequeñas */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Aventura Épica: La Cripta Olvidada</h1>
+
+        <!-- Área de visualización del juego -->
+        <div class="game-display" id="gameDisplay">
+            <p class="story-text">Estás en la entrada de una antigua cripta. El aire es denso y el silencio es profundo. Solo hay un camino hacia el sur.</p>
+        </div>
+
+        <!-- Inventario del jugador -->
+        <div class="inventory">
+            <h3>Inventario</h3>
+            <ul id="inventoryList">
+                <li>(Vacío)</li>
+            </ul>
+        </div>
+
+        <!-- Controles del juego -->
+        <div class="controls">
+            <!-- Botones de movimiento -->
+            <div class="movement-buttons">
+                <button onclick="handleCommand('ir norte')">Ir Norte</button>
+                <button onclick="handleCommand('ir sur')">Ir Sur</button>
+                <button onclick="handleCommand('ir este')">Ir Este</button>
+                <button onclick="handleCommand('ir oeste')">Ir Oeste</button>
+            </div>
+            <!-- Botones de acción -->
+            <div class="action-buttons">
+                <button onclick="handleCommand('examinar')">Examinar</button>
+                <button onclick="handleCommand('inventario')">Inventario</button>
+                <button onclick="handleCommand('ayuda')">Ayuda</button>
+            </div>
+            <!-- Campo de entrada de comandos -->
+            <input type="text" id="commandInput" class="command-input" placeholder="Escribe tu comando (ej: coger linterna)">
+        </div>
+    </div>
+
+    <script>
+        // Elementos del DOM
+        const gameDisplay = document.getElementById('gameDisplay');
+        const inventoryList = document.getElementById('inventoryList');
+        const commandInput = document.getElementById('commandInput');
+
+        // Estado del juego
+        let currentRoomId = 'entradaCripta';
+        let inventory = [];
+
+        // Definición del mundo (habitaciones)
+        // Cada habitación tiene un ID, un nombre, una descripción y una lista de salidas y objetos.
+        const rooms = {
+            'entradaCripta': {
+                name: 'Entrada de la Cripta',
+                description: 'Estás en la entrada de una antigua cripta. Musgo y enredaderas cubren las piedras. Hay un aire frío que emana del interior. Ves una tenue luz al sur.',
+                exits: { 'sur': 'pasilloOscuro' },
+                items: []
+            },
+            'pasilloOscuro': {
+                name: 'Pasillo Oscuro',
+                description: 'Un pasillo largo y húmedo. Las antorchas parpadean débilmente. Puedes ir al norte (hacia la entrada), al este o al oeste. Hay una pequeña <strong>llave oxidada</strong> en el suelo.',
+                exits: { 'norte': 'entradaCripta', 'este': 'camaraLateral', 'oeste': 'salaPilares' },
+                items: ['llave oxidada']
+            },
+            'camaraLateral': {
+                name: 'Cámara Lateral',
+                description: 'Una pequeña cámara con un pedestal vacío en el centro. Las paredes están talladas con extraños símbolos. Hay una <strong>linterna</strong> colgando de un gancho.',
+                exits: { 'oeste': 'pasilloOscuro' },
+                items: ['linterna']
+            },
+            'salaPilares': {
+                name: 'Sala de Pilares',
+                description: 'Una gran sala sostenida por pilares imponentes que se elevan hacia un techo invisible. La oscuridad es casi total aquí. Parece haber un <strong>cofre</strong> en un rincón, pero no puedes verlo bien sin luz.',
+                exits: { 'este': 'pasilloOscuro', 'sur': 'pasadizoSecreto' }, // Pasadizo secreto inicialmente oculto
+                items: ['cofre']
+            },
+            'pasadizoSecreto': {
+                name: 'Pasadizo Secreto',
+                description: 'Has encontrado un pasadizo oculto detrás de uno de los pilares. Es estrecho y polvoriento. Al final, hay una pequeña cavidad. Puedes ir al norte.',
+                exits: { 'norte': 'salaPilares', 'sur': 'camaraFinal' }, // Añadir salida a la cámara final
+                items: ['artefacto brillante']
+            },
+            'camaraFinal': {
+                name: 'Cámara Final',
+                description: '¡Has llegado a la Cámara Final! Una plataforma elevada en el centro contiene un objeto resplandeciente, el <strong>Anillo del Poder Antiguo</strong>. ¡Tu aventura está casi completa!',
+                exits: { 'norte': 'pasadizoSecreto' }, // Por si quieres volver
+                items: ['anillo del poder antiguo']
+            }
+        };
+
+        // Función para añadir mensajes al display del juego
+        function addGameMessage(message, type = 'story-text') {
+            const p = document.createElement('p');
+            p.classList.add(type);
+            p.innerHTML = message; // Usar innerHTML para permitir etiquetas como <strong>
+            gameDisplay.appendChild(p);
+            gameDisplay.scrollTop = gameDisplay.scrollHeight; // Desplazar al final
+        }
+
+        // Función para actualizar la descripción de la habitación actual
+        function updateRoomDescription() {
+            const room = rooms[currentRoomId];
+            addGameMessage(`<strong>${room.name}</strong>`, 'game-message');
+            addGameMessage(room.description);
+
+            // Condición especial para la Sala de Pilares si no tienes linterna
+            if (currentRoomId === 'salaPilares' && !inventory.includes('linterna')) {
+                addGameMessage('La oscuridad te impide ver los objetos aquí.', 'game-message');
+            } else if (room.items.length > 0) {
+                // Filtrar el cofre si ya ha sido abierto (para que no aparezca como "cofre" una vez abierto)
+                const itemsToShow = room.items.filter(item => !(item === 'cofre' && inventory.includes('mapa antiguo')));
+                if (itemsToShow.length > 0) {
+                    addGameMessage('También ves: ' + itemsToShow.map(item => `<strong>${item}</strong>`).join(', ') + '.');
+                } else {
+                    addGameMessage('No hay objetos evidentes aquí.');
+                }
+            } else {
+                addGameMessage('No hay objetos evidentes aquí.');
+            }
+        }
+
+        // Función para actualizar el inventario visualmente
+        function updateInventoryDisplay() {
+            inventoryList.innerHTML = ''; // Limpiar lista actual
+            if (inventory.length === 0) {
+                const li = document.createElement('li');
+                li.textContent = '(Vacío)';
+                inventoryList.appendChild(li);
+            } else {
+                inventory.forEach(item => {
+                    const li = document.createElement('li');
+                    li.textContent = item.charAt(0).toUpperCase() + item.slice(1); // Capitalizar primera letra
+                    inventoryList.appendChild(li);
+                });
+            }
+        }
+
+        // Manejo de comandos del jugador
+        function handleCommand(command) {
+            command = command.toLowerCase().trim(); // Limpiar y normalizar el comando
+            addGameMessage(`> ${command}`, 'game-message'); // Mostrar el comando del jugador
+
+            const parts = command.split(' ');
+            const action = parts[0];
+            const target = parts.slice(1).join(' '); // El resto del comando como objetivo
+
+            switch (action) {
+                case 'ir':
+                    movePlayer(target);
+                    break;
+                case 'examinar':
+                    examineRoom();
+                    break;
+                case 'coger':
+                case 'tomar':
+                    takeItem(target);
+                    break;
+                case 'inventario':
+                    displayInventory();
+                    break;
+                case 'ayuda':
+                    displayHelp();
+                    break;
+                default:
+                    addGameMessage('Comando desconocido. Escribe "ayuda" para ver los comandos disponibles.', 'game-message');
+            }
+            commandInput.value = ''; // Limpiar el campo de entrada
+        }
+
+        // Mover al jugador
+        function movePlayer(direction) {
+            const currentRoom = rooms[currentRoomId];
+            const newRoomId = currentRoom.exits[direction];
+
+            if (newRoomId) {
+                // Lógica de "puzzle" simple: necesitas linterna para ver en Sala de Pilares y llave para Pasadizo Secreto
+                if (newRoomId === 'salaPilares' && !inventory.includes('linterna')) {
+                    addGameMessage('Es demasiado oscuro para entrar en esa sala sin una fuente de luz.', 'game-message');
+                    return;
+                }
+                // Habilitar pasadizoSecreto solo si tienes la llave
+                if (newRoomId === 'pasadizoSecreto' && currentRoomId === 'salaPilares' && !inventory.includes('llave oxidada')) {
+                     addGameMessage('Parece que hay un pasadizo oculto aquí, pero necesitas una llave para desbloquearlo.', 'game-message');
+                     return;
+                }
+
+                currentRoomId = newRoomId;
+                updateRoomDescription();
+            } else {
+                addGameMessage(`No puedes ir al ${direction} desde aquí.`, 'game-message');
+            }
+        }
+
+        // Examinar la habitación actual
+        function examineRoom() {
+            updateRoomDescription(); // Simplemente vuelve a mostrar la descripción y los objetos
+        }
+
+        // Coger un objeto
+        function takeItem(itemToTake) {
+            const currentRoom = rooms[currentRoomId];
+            const itemIndex = currentRoom.items.indexOf(itemToTake);
+
+            if (itemIndex !== -1) {
+                // Lógica especial para el cofre
+                if (itemToTake === 'cofre') {
+                    if (inventory.includes('llave oxidada')) {
+                        if (!inventory.includes('mapa antiguo')) { // Evitar añadir el mapa varias veces
+                            addGameMessage('Abres el cofre con la llave oxidada. Dentro encuentras un <strong>mapa antiguo</strong>.', 'game-message');
+                            inventory.push('mapa antiguo');
+                            updateInventoryDisplay();
+                            // El cofre en sí ya no es un objeto que puedas "coger" después de abrirlo,
+                            // pero lo dejamos en la lista de items de la habitación para que su presencia sea implícita.
+                            // Solo se filtra al mostrar los items en updateRoomDescription.
+                        } else {
+                            addGameMessage('Ya has abierto el cofre. Está vacío ahora.', 'game-message');
+                        }
+                    } else {
+                        addGameMessage('El cofre está cerrado. Necesitas una llave para abrirlo.', 'game-message');
+                    }
+                    return; // Importante para no caer en el caso general de coger
+                }
+                
+                // Si el item es el artefacto final y la misión está completa
+                if (itemToTake === 'anillo del poder antiguo' && currentRoomId === 'camaraFinal') {
+                    addGameMessage('¡Has cogido el <strong>Anillo del Poder Antiguo</strong>! Una luz cegadora te envuelve y te transporta fuera de la cripta. ¡Felicidades, has completado la aventura!', 'game-message');
+                    inventory.push(itemToTake);
+                    currentRoom.items.splice(itemIndex, 1); // Remover del cuarto
+                    updateInventoryDisplay();
+                    // Aquí podrías añadir un botón para reiniciar o un mensaje de fin de juego
+                    commandInput.disabled = true; // Deshabilitar entrada
+                    addGameMessage('Juego Terminado. ¡Refresca la página para jugar de nuevo!', 'game-message');
+                    return;
+                }
+
+                // Lógica para coger cualquier otro item
+                inventory.push(currentRoom.items[itemIndex]); // Añadir al inventario
+                currentRoom.items.splice(itemIndex, 1); // Remover del cuarto
+                addGameMessage(`Has cogido: <strong>${itemToTake}</strong>.`, 'game-message');
+                updateInventoryDisplay();
+            } else {
+                addGameMessage(`No veo '<strong>${itemToTake}</strong>' aquí.`, 'game-message');
+            }
+        }
+
+        // Mostrar inventario
+        function displayInventory() {
+            if (inventory.length === 0) {
+                addGameMessage('Tu inventario está vacío.', 'game-message');
+            } else {
+                addGameMessage('Tienes en tu inventario: ' + inventory.map(item => `<strong>${item}</strong>`).join(', ') + '.', 'game-message');
+            }
+        }
+
+        // Mostrar ayuda
+        function displayHelp() {
+            addGameMessage('Comandos disponibles:');
+            addGameMessage('- <strong>ir [norte/sur/este/oeste]</strong>: Para moverte entre habitaciones.');
+            addGameMessage('- <strong>examinar</strong>: Para ver la descripción de la habitación actual y los objetos.');
+            addGameMessage('- <strong>coger [objeto]</strong>: Para recoger un objeto del suelo (ej: coger linterna).');
+            addGameMessage('- <strong>inventario</strong>: Para ver los objetos que tienes.');
+            addGameMessage('- <strong>ayuda</strong>: Para ver esta lista de comandos.');
+        }
+
+        // Evento para escuchar la tecla Enter en el campo de comando
+        commandInput.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                handleCommand(commandInput.value);
+            }
+        });
+
+        // Inicializar el juego al cargar la página
+        window.onload = function() {
+            updateRoomDescription(); // Mostrar la descripción inicial
+            updateInventoryDisplay(); // Mostrar el inventario inicial (vacío)
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador de Ciudad</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="img/logo-001.jpg">
+    <style>
+        /* Estilos generales del cuerpo */
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #2c3e50; /* Azul oscuro */
+            color: #ecf0f1; /* Gris claro */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto;
+            background-image: linear-gradient(to bottom, #34495e, #2c3e50);
+        }
+
+        /* Contenedor principal del juego */
+        .game-container {
+            background-color: rgba(44, 62, 80, 0.95); /* Fondo oscuro semitransparente */
+            border: 2px solid #3498db; /* Borde azul brillante */
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 1400px;
+            width: 100%;
+            box-shadow: 0 0 50px rgba(52, 152, 219, 0.5); /* Sombra azul */
+            display: grid;
+            grid-template-columns: 3fr 1fr; /* Cuadrícula del mapa y panel lateral */
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        /* Título del juego */
+        h1 {
+            font-family: 'Oswald', sans-serif;
+            color: #e67e22; /* Naranja cálido */
+            text-align: center;
+            margin-bottom: 30px;
+            text-shadow: 0 0 15px rgba(230, 126, 34, 0.7);
+            font-size: 3.2em;
+            grid-column: 1 / -1; /* Ocupar ambas columnas */
+        }
+
+        /* Área del mapa de la ciudad */
+        .city-map {
+            background-color: #34495e; /* Fondo del mapa */
+            border: 1px solid #3498db;
+            border-radius: 10px;
+            display: grid;
+            grid-template-columns: repeat(20, 1fr); /* Mapa de 20x20 celdas */
+            grid-template-rows: repeat(20, 1fr);
+            gap: 1px; /* Pequeño espacio entre celdas */
+            width: 100%;
+            padding: 5px;
+            box-shadow: inset 0 0 10px rgba(52, 152, 219, 0.3);
+            aspect-ratio: 1 / 1; /* Mantener cuadrado */
+            max-width: 800px; /* Limitar tamaño máximo para que no sea demasiado grande */
+            margin: 0 auto; /* Centrar el mapa */
+        }
+
+        /* Celda del mapa */
+        .map-cell {
+            background-color: #2c3e50; /* Base de la celda */
+            border: 1px solid #3d5a7d;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: background-color 0.1s ease, transform 0.05s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-cell:hover {
+            background-color: #46678b; /* Azul claro al pasar el ratón */
+            transform: scale(1.02);
+            z-index: 1; /* Asegurar que el hover se vea bien */
+        }
+
+        /* Iconos de edificios */
+        .map-cell.residential { background-color: #27ae60; } /* Verde para residencial */
+        .map-cell.commercial { background-color: #f1c40f; } /* Amarillo para comercial */
+        .map-cell.industrial { background-color: #e74c3c; } /* Rojo para industrial */
+        .map-cell.empty { background-color: #34495e; } /* Vacío */
+
+        .map-cell span {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            font-size: 0.6em;
+            color: rgba(255,255,255,0.7);
+        }
+
+        /* Panel lateral de información y controles */
+        .info-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .panel-section {
+            background-color: #34495e;
+            border: 1px solid #3498db;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 0 15px rgba(52, 152, 219, 0.3);
+        }
+
+        .panel-section h3 {
+            font-family: 'Oswald', sans-serif;
+            color: #e67e22;
+            margin-top: 0;
+            margin-bottom: 15px;
+            text-align: center;
+            font-size: 1.4em;
+            text-shadow: 0 0 8px rgba(230, 126, 34, 0.5);
+        }
+
+        /* Estadísticas de la ciudad */
+        #cityStats p {
+            margin: 8px 0;
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.1em;
+        }
+        #cityStats strong {
+            color: #2ecc71; /* Verde esmeralda */
+        }
+        #cityStats span {
+            color: #f39c12; /* Naranja para valores */
+            font-weight: bold;
+        }
+
+        /* Botones de construcción */
+        .build-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        button {
+            background-color: #2980b9; /* Azul medio */
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(41, 128, 185, 0.4);
+            font-family: 'Roboto', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        button:hover {
+            background-color: #3498db; /* Azul más claro al pasar el ratón */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.6);
+        }
+
+        button:active {
+            background-color: #21618c; /* Azul más oscuro al hacer clic */
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(33, 97, 140, 0.5);
+        }
+
+        button:disabled {
+            background-color: #5d6d7e;
+            color: #bdc3c7;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        /* Mensajes del juego */
+        #gameMessages {
+            height: 180px;
+            overflow-y: auto;
+            background-color: #2c3e50;
+            border-radius: 8px;
+            padding: 15px;
+            font-size: 0.9em;
+            color: #bdc3c7;
+            border: 1px solid #3498db;
+        }
+
+        #gameMessages p {
+            margin: 5px 0;
+            line-height: 1.4;
+        }
+
+        .message-info { color: #85c1e9; } /* Azul claro */
+        .message-success { color: #2ecc71; font-weight: bold; } /* Verde éxito */
+        .message-error { color: #e74c3c; font-weight: bold; } /* Rojo error */
+        .message-alert { color: #f1c40f; } /* Amarillo alerta */
+
+        /* Media queries para responsividad */
+        @media (max-width: 1000px) {
+            .game-container {
+                grid-template-columns: 1fr; /* Columnas apiladas en pantallas pequeñas */
+                padding: 20px;
+                gap: 20px;
+            }
+            h1 {
+                font-size: 2.5em;
+            }
+            .city-map {
+                grid-template-columns: repeat(15, 1fr); /* Reducir grid en pantallas pequeñas */
+                grid-template-rows: repeat(15, 1fr);
+                max-width: 600px;
+            }
+            .map-cell {
+                font-size: 0.7em;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .game-container {
+                padding: 15px;
+            }
+            h1 {
+                font-size: 2em;
+            }
+            .city-map {
+                grid-template-columns: repeat(10, 1fr); /* Aún más pequeño */
+                grid-template-rows: repeat(10, 1fr);
+                max-width: 400px;
+            }
+            .map-cell {
+                font-size: 0.6em;
+            }
+            button {
+                font-size: 0.9em;
+                padding: 10px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Simulador de Ciudad</h1>
+
+        <div class="city-map" id="cityMap">
+            </div>
+
+        <div class="info-panel">
+            <div class="panel-section">
+                <h3>Estadísticas de la Ciudad</h3>
+                <div id="cityStats">
+                    <p><strong>Dinero:</strong> <span id="money">0</span></p>
+                    <p><strong>Población:</strong> <span id="population">0</span></p>
+                    <p><strong>Felicidad:</strong> <span id="happiness">0%</span></p>
+                    <p><strong>Empleos:</strong> <span id="jobs">0</span></p>
+                    <p><strong>Residencias:</strong> <span id="residentialCapacity">0</span></p>
+                </div>
+                <button onclick="game.endMonth()">Avanzar Mes</button>
+            </div>
+
+            <div class="panel-section">
+                <h3>Construir</h3>
+                <div class="build-buttons">
+                    <button onclick="game.setBuildMode('residential')">Residencia (Coste: $500, Cap: 10)</button>
+                    <button onclick="game.setBuildMode('commercial')">Comercio (Coste: $700, Empleos: 5)</button>
+                    <button onclick="game.setBuildMode('industrial')">Industria (Coste: $1000, Empleos: 10)</button>
+                    <button onclick="game.cancelBuildMode()">Cancelar Construcción</button>
+                </div>
+            </div>
+
+            <div class="panel-section">
+                <h3>Mensajes de la Ciudad</h3>
+                <div id="gameMessages">
+                    <p class="message-info">¡Bienvenido a tu nueva ciudad!</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const game = {
+            gridSize: 20, // Tamaño de la cuadrícula del mapa (20x20 celdas)
+            cells: [], // Almacena el estado de cada celda del mapa
+            money: 5000, // Dinero inicial
+            population: 0,
+            happiness: 75, // Felicidad inicial (0-100)
+            jobs: 0, // Total de empleos disponibles
+            residentialCapacity: 0, // Capacidad total de población de las residencias
+            buildMode: null, // Tipo de edificio a construir (residential, commercial, industrial)
+
+            // Costes y efectos de los edificios
+            buildingData: {
+                residential: { cost: 500, capacity: 10, income: 2, upkeep: 1 },
+                commercial: { cost: 700, jobs: 5, income: 5, upkeep: 3 },
+                industrial: { cost: 1000, jobs: 10, income: 8, upkeep: 5 }
+            },
+
+            // Referencias a elementos del DOM
+            cityMapElement: document.getElementById('cityMap'),
+            moneyDisplay: document.getElementById('money'),
+            populationDisplay: document.getElementById('population'),
+            happinessDisplay: document.getElementById('happiness'),
+            jobsDisplay: document.getElementById('jobs'),
+            residentialCapacityDisplay: document.getElementById('residentialCapacity'),
+            gameMessagesElement: document.getElementById('gameMessages'),
+
+            // Inicializa el juego
+            initializeGame() {
+                this.generateCityMap();
+                this.updateStatsDisplay();
+                this.addMessage("¡Es hora de construir tu metrópolis!", 'message-info');
+            },
+
+            // Genera el mapa de la ciudad
+            generateCityMap() {
+                this.cityMapElement.innerHTML = '';
+                this.cells = [];
+                for (let i = 0; i < this.gridSize * this.gridSize; i++) {
+                    const cell = {
+                        id: `cell-${i}`,
+                        type: 'empty' // residential, commercial, industrial, empty
+                    };
+                    this.cells.push(cell);
+
+                    const cellDiv = document.createElement('div');
+                    cellDiv.classList.add('map-cell', 'empty');
+                    cellDiv.id = `cell-${i}`; // ¡IMPORTANTE: Añadir el ID aquí!
+                    cellDiv.dataset.cellId = i;
+                    cellDiv.addEventListener('click', () => this.handleCellClick(i));
+                    this.cityMapElement.appendChild(cellDiv);
+                }
+            },
+
+            // Maneja el clic en una celda del mapa
+            handleCellClick(cellId) {
+                const cell = this.cells[cellId];
+                const cellDiv = document.getElementById(`cell-${cellId}`);
+
+                if (this.buildMode) {
+                    if (cell.type === 'empty') {
+                        this.buildBuilding(cellId, this.buildMode);
+                        this.cancelBuildMode(); // Desactivar modo de construcción después de construir
+                    } else {
+                        this.addMessage("Esta celda ya está ocupada.", 'message-error');
+                    }
+                } else {
+                    // Si no estamos en modo de construcción, simplemente muestra información de la celda
+                    this.addMessage(`Celda ${cellId}: Tipo ${cell.type}.`, 'message-info');
+                }
+            },
+
+            // Establece el modo de construcción
+            setBuildMode(type) {
+                this.buildMode = type;
+                this.addMessage(`Modo de construcción: ${type.charAt(0).toUpperCase() + type.slice(1)}. Haz clic en una celda vacía del mapa.`, 'message-alert');
+                // Realzar celdas vacías para construcción
+                this.cells.forEach((cell, index) => {
+                    const cellDiv = document.getElementById(`cell-${index}`);
+                    if (cell.type === 'empty') {
+                        cellDiv.style.outline = '2px dashed #f1c40f'; // Resaltar celdas disponibles
+                    }
+                });
+            },
+
+            // Cancela el modo de construcción
+            cancelBuildMode() {
+                this.buildMode = null;
+                this.addMessage("Modo de construcción cancelado.", 'message-info');
+                // Quitar resaltado de celdas
+                this.cells.forEach((cell, index) => {
+                    const cellDiv = document.getElementById(`cell-${index}`);
+                    if (cellDiv) { // Añadir verificación por si la celda ya no existe (ej. al finalizar el juego)
+                        cellDiv.style.outline = 'none';
+                    }
+                });
+            },
+
+            // Construye un edificio
+            buildBuilding(cellId, type) {
+                const building = this.buildingData[type];
+                if (this.money >= building.cost) {
+                    this.money -= building.cost;
+                    const cell = this.cells[cellId];
+                    cell.type = type;
+
+                    const cellDiv = document.getElementById(`cell-${cellId}`);
+                    cellDiv.classList.remove('empty');
+                    cellDiv.classList.add(type);
+                    cellDiv.innerHTML = this.getBuildingSymbol(type); // Símbolo del edificio
+
+                    // Actualizar estadísticas basadas en el nuevo edificio
+                    if (type === 'residential') {
+                        this.residentialCapacity += building.capacity;
+                        this.addMessage(`¡Nueva residencia construida en celda ${cellId}! Capacidad: +${building.capacity}.`, 'message-success');
+                    } else if (type === 'commercial') {
+                        this.jobs += building.jobs;
+                        this.addMessage(`¡Nuevo comercio construido en celda ${cellId}! Empleos: +${building.jobs}.`, 'message-success');
+                    } else if (type === 'industrial') {
+                        this.jobs += building.jobs;
+                        this.addMessage(`¡Nueva industria construida en celda ${cellId}! Empleos: +${building.jobs}.`, 'message-success');
+                    }
+
+                    this.updateStatsDisplay();
+                } else {
+                    this.addMessage(`¡Dinero insuficiente para construir ${type}! Necesitas $${building.cost}.`, 'message-error');
+                }
+            },
+
+            // Símbolos para edificios
+            getBuildingSymbol(type) {
+                switch(type) {
+                    case 'residential': return '🏠';
+                    case 'commercial': return '🛍️';
+                    case 'industrial': return '🏭';
+                    default: return '';
+                }
+            },
+
+            // Avanzar al siguiente mes
+            endMonth() {
+                this.addMessage("--- Nuevo Mes ---", 'message-info');
+                this.calculateMonthlyIncome();
+                this.updatePopulation();
+                this.updateHappiness();
+                this.applyUpkeepCosts();
+                this.updateStatsDisplay();
+
+                // Verificar condiciones de juego (ej. bancarrota, gran población)
+                if (this.money < 0) {
+                    this.addMessage("¡Has caído en bancarrota! Fin del juego.", 'message-error');
+                    this.endGame();
+                }
+                if (this.population >= 1000) { // Ejemplo de objetivo
+                    this.addMessage("¡Tu ciudad es una metrópolis próspera! Has alcanzado los 1000 habitantes.", 'message-success');
+                    // Podrías añadir más niveles o condiciones de victoria aquí
+                }
+            },
+
+            // Calcula ingresos mensuales
+            calculateMonthlyIncome() {
+                let income = 0;
+                let upkeep = 0;
+
+                this.cells.forEach(cell => {
+                    const building = this.buildingData[cell.type];
+                    if (building) {
+                        income += building.income || 0;
+                        upkeep += building.upkeep || 0;
+                    }
+                });
+
+                // Ingresos base por población (ej. impuestos)
+                income += Math.floor(this.population / 2);
+
+                this.money += income;
+                this.money -= upkeep;
+
+                this.addMessage(`Ingresos del mes: $${income}. Mantenimiento: $${upkeep}. Total: $${income - upkeep}.`, 'message-info');
+            },
+
+            // Aplica costos de mantenimiento
+            applyUpkeepCosts() {
+                // Ya se maneja en calculateMonthlyIncome, pero si hubiera otros costos fijos, irían aquí
+            },
+
+            // Actualiza la población
+            updatePopulation() {
+                const oldPopulation = this.population;
+                // La población intenta crecer hasta la capacidad residencial o los empleos disponibles, influenciada por la felicidad
+                let newPopulation = Math.min(this.residentialCapacity, this.jobs);
+
+                // La felicidad influye en el crecimiento o la disminución
+                if (this.happiness > 70) {
+                    newPopulation = Math.min(newPopulation, oldPopulation + Math.floor(this.residentialCapacity * 0.1) + Math.floor(this.happiness / 10)); // Crecimiento rápido
+                } else if (this.happiness < 40 && this.population > 0) {
+                    newPopulation = Math.max(0, oldPopulation - Math.floor(this.population * 0.05)); // Disminución
+                } else {
+                    newPopulation = Math.min(newPopulation, oldPopulation + Math.floor(this.residentialCapacity * 0.02) + Math.floor(this.happiness / 20)); // Crecimiento lento
+                }
+                
+                // Asegurarse de que la población no supere la capacidad residencial o los empleos disponibles
+                newPopulation = Math.min(newPopulation, this.residentialCapacity, this.jobs);
+                
+                // Si la población es mayor que los empleos o la capacidad, disminuye.
+                if (oldPopulation > this.residentialCapacity || oldPopulation > this.jobs) {
+                    newPopulation = Math.max(0, oldPopulation - 5); // Simulación de gente que se va
+                }
+
+
+                this.population = Math.floor(newPopulation);
+
+                if (this.population > oldPopulation) {
+                    this.addMessage(`La población ha crecido a ${this.population} (+${this.population - oldPopulation}).`, 'message-success');
+                } else if (this.population < oldPopulation) {
+                    this.addMessage(`La población ha disminuido a ${this.population} (-${oldPopulation - this.population}).`, 'message-alert');
+                } else {
+                    this.addMessage(`La población se mantiene en ${this.population}.`, 'message-info');
+                }
+
+            },
+
+            // Actualiza la felicidad de la ciudad
+            updateHappiness() {
+                let newHappiness = this.happiness;
+
+                // Factores que influyen en la felicidad
+                const residentialCount = this.cells.filter(c => c.type === 'residential').length;
+                const commercialCount = this.cells.filter(c => c.type === 'commercial').length;
+                const industrialCount = this.cells.filter(c => c.type === 'industrial').length;
+
+                // Empleos vs. Población
+                const employmentRate = this.population > 0 ? (this.jobs / this.population) : 1; // Si no hay población, asumimos 100% de empleos
+                if (employmentRate < 0.8 && this.population > 0) { // Desempleo
+                    newHappiness -= 5;
+                    this.addMessage(`El desempleo está afectando la felicidad.`, 'message-alert');
+                } else if (employmentRate >= 1.2 && this.population < this.jobs) { // Exceso de empleos
+                    newHappiness += 3;
+                    this.addMessage(`Hay muchos empleos, la felicidad aumenta.`, 'message-info');
+                }
+
+                // Balance de edificios
+                if (residentialCount > 0 && commercialCount === 0) {
+                    newHappiness -= 10; // No hay donde comprar
+                }
+                if (industrialCount > residentialCount * 2) { // Demasiada industria, poca residencia
+                    newHappiness -= 8; // Contaminación, etc.
+                    this.addMessage(`Demasiada industria sin equilibrio residencial.`, 'message-alert');
+                } else if (industrialCount > 0 && commercialCount > 0 && residentialCount > 0) {
+                    newHappiness += 2; // Balance decente
+                }
+
+                // Dinero
+                if (this.money < 1000 && this.money > 0) {
+                    newHappiness -= 3; // Preocupación por el dinero
+                } else if (this.money <= 0) {
+                    newHappiness -= 15; // Crisis financiera
+                } else if (this.money > 10000) {
+                    newHappiness += 5; // Prosperidad
+                }
+
+                // Asegurar que la felicidad esté entre 0 y 100
+                this.happiness = Math.max(0, Math.min(100, newHappiness));
+                this.addMessage(`Felicidad actual: ${this.happiness}%.`, 'message-info');
+            },
+
+            // Actualiza los displays de las estadísticas
+            updateStatsDisplay() {
+                this.moneyDisplay.textContent = this.money.toLocaleString('es-MX', { style: 'currency', currency: 'USD', minimumFractionDigits: 0 });
+                this.populationDisplay.textContent = this.population;
+                this.happinessDisplay.textContent = `${this.happiness}%`;
+                this.jobsDisplay.textContent = this.jobs;
+                this.residentialCapacityDisplay.textContent = this.residentialCapacity;
+            },
+
+            // Añade un mensaje al log del juego
+            addMessage(message, type = 'message-info') {
+                const p = document.createElement('p');
+                p.classList.add(type);
+                p.textContent = message;
+                this.gameMessagesElement.prepend(p); // Añadir al principio para ver los más recientes
+                // Limitar el número de mensajes para no sobrecargar
+                while (this.gameMessagesElement.children.length > 50) {
+                    this.gameMessagesElement.removeChild(this.gameMessagesElement.lastChild);
+                }
+            },
+
+            // Finaliza el juego
+            endGame() {
+                this.addMessage("¡Juego Terminado! Refresca la página para volver a jugar.", 'message-error');
+                // Deshabilitar todas las interacciones
+                document.querySelectorAll('button').forEach(btn => btn.disabled = true);
+                this.cityMapElement.querySelectorAll('.map-cell').forEach(cell => cell.removeEventListener('click', this.handleCellClick));
+            }
+        };
+
+        // Inicializar el juego al cargar la página
+        window.onload = function() {
+            game.initializeGame();
+        };
+    </script>
+</body>
+</html>
