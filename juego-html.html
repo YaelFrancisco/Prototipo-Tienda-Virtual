@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recolector de Energía (POO)</title>
+    <!-- Carga de Tailwind CSS para estilos base y responsivos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Importa una fuente tipo "pixel" para un estilo retro */
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+        body {
+            font-family: 'Press Start 2P', cursive; /* Fuente principal del juego */
+            background-color: #1a1a1d; /* Fondo oscuro */
+            color: #e0e0e0; /* Color de texto claro */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 1rem;
+            box-sizing: border-box;
+        }
+
+        .game-container {
+            background-color: #2b2b2b; /* Fondo del área de juego */
+            border: 4px solid #808080; /* Borde estilo pixelado */
+            border-radius: 8px;
+            box-shadow: 8px 8px 0px 0px #000; /* Sombra "pixel-art" */
+            padding: 1.5rem;
+            text-align: center;
+            max-width: 600px; /* Ancho máximo del contenedor */
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            position: relative;
+        }
+
+        h1 {
+            font-size: clamp(1.5rem, 5vw, 2.5rem); /* Título responsivo */
+            color: #00ff00; /* Verde brillante */
+            margin-bottom: 1rem;
+        }
+
+        canvas {
+            background-color: #111; /* Fondo del canvas */
+            border: 2px solid #555;
+            display: block;
+            margin: 0 auto;
+            image-rendering: optimizeSpeed; /* Alias para pixelated en algunos navegadores */
+            image-rendering: -moz-crisp-edges; /* Firefox */
+            image-rendering: -webkit-optimize-contrast; /* Webkit */
+            image-rendering: optimize-contrast; /* IE */
+            image-rendering: pixelated; /* Chrome, Edge */
+            -ms-interpolation-mode: nearest-neighbor; /* IE Legacy */
+            width: 100%; /* El canvas se ajustará al ancho de su contenedor */
+            height: auto; /* Mantendrá la proporción */
+            max-height: 400px; /* Altura máxima para evitar que sea demasiado grande en pantallas muy anchas */
+        }
+
+        .ui-panel {
+            display: flex;
+            justify-content: space-between;
+            font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+            margin-bottom: 0.5rem;
+            color: #64ffda; /* Aqua */
+        }
+
+        .game-message {
+            font-size: clamp(1rem, 3vw, 1.3rem);
+            color: #ffe066; /* Amarillo */
+            min-height: 2rem; /* Evitar CLS */
+        }
+
+        .game-button {
+            background-color: #008080; /* Teal */
+            border: 3px solid #00c0c0;
+            color: #e0ffff;
+            padding: 0.75rem 1.5rem;
+            font-family: 'Press Start 2P', cursive;
+            font-size: clamp(0.9rem, 2.5vw, 1.2rem);
+            cursor: pointer;
+            border-radius: 6px;
+            box-shadow: 6px 6px 0px 0px #000;
+            transition: background-color 0.1s ease, box-shadow 0.1s ease, transform 0.1s ease;
+            margin-top: 1rem;
+        }
+
+        .game-button:hover {
+            background-color: #009999;
+        }
+
+        .game-button:active {
+            box-shadow: 0px 0px 0px 0px #000;
+            transform: translate(6px, 6px);
+        }
+
+        .start-screen, .game-over-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.85); /* Fondo semitransparente oscuro */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            color: #e0e0e0;
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            border-radius: 8px; /* Coincide con el contenedor */
+            z-index: 10;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="text-white">RECOLECTOR DE ENERGÍA</h1>
+
+        <!-- Panel de UI -->
+        <div class="ui-panel">
+            <span>PUNTOS: <span id="score-display">0</span></span>
+            <span>NIVEL: <span id="level-display">1</span></span>
+        </div>
+
+        <!-- Canvas del juego -->
+        <canvas id="gameCanvas" width="480" height="320"></canvas>
+
+        <!-- Mensaje del juego (ej. "¡Juego Terminado!") -->
+        <p id="game-message" class="game-message"></p>
+
+        <!-- Pantalla de inicio -->
+        <div id="start-screen" class="start-screen">
+            <h2 class="text-white">¡Bienvenido!</h2>
+            <p>Mueve el cuadrado azul con las flechas.</p>
+            <p>Recolecta los puntos de energía verdes.</p>
+            <p>¡Evita la barrera láser roja!</p>
+            <button id="startButton" class="game-button">INICIAR JUEGO</button>
+        </div>
+
+        <!-- Pantalla de Game Over -->
+        <div id="gameOverScreen" class="game-over-screen hidden">
+            <h2 class="text-red-500">¡JUEGO TERMINADO!</h2>
+            <p>PUNTOS FINALES: <span id="finalScoreDisplay">0</span></p>
+            <button id="restartButton" class="game-button">REINICIAR</button>
+        </div>
+    </div>
+
+    <script>
+        // Obtención del canvas y su contexto de dibujo
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Definición de las dimensiones del juego
+        const GAME_WIDTH = canvas.width;
+        const GAME_HEIGHT = canvas.height;
+
+        // Referencias a elementos del DOM para la UI
+        const scoreDisplay = document.getElementById('score-display');
+        const levelDisplay = document.getElementById('level-display');
+        const gameMessage = document.getElementById('game-message');
+        const startScreen = document.getElementById('start-screen');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const startButton = document.getElementById('startButton');
+        const restartButton = document.getElementById('restartButton');
+        const finalScoreDisplay = document.getElementById('finalScoreDisplay');
+
+        // Objeto para rastrear las teclas presionadas
+        const keys = {};
+
+        // Event listeners para el control de teclado
+        window.addEventListener('keydown', (e) => {
+            keys[e.key] = true;
+        });
+
+        window.addEventListener('keyup', (e) => {
+            keys[e.key] = false;
+        });
+
+        /**
+         * Clase base para todos los objetos del juego.
+         * Demuestra encapsulación de propiedades básicas y un método de dibujo.
+         */
+        class GameObject {
+            constructor(x, y, width, height, color) {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+                this.color = color;
+            }
+
+            // Método para dibujar el objeto en el canvas
+            draw(context) {
+                context.fillStyle = this.color;
+                context.fillRect(this.x, this.y, this.width, this.height);
+            }
+
+            // Método para verificar colisión con otro objeto
+            // Demuestra una lógica común de interacción entre objetos.
+            isColliding(otherObject) {
+                return this.x < otherObject.x + otherObject.width &&
+                       this.x + this.width > otherObject.x &&
+                       this.y < otherObject.y + otherObject.height &&
+                       this.y + this.height > otherObject.y;
+            }
+        }
+
+        /**
+         * Clase para el jugador, hereda de GameObject.
+         * Demuestra herencia y propiedades/métodos específicos del jugador.
+         */
+        class Player extends GameObject {
+            constructor(x, y) {
+                super(x, y, 20, 20, '#00bfff'); // Tamaño y color del jugador (azul)
+                this.speed = 3; // Velocidad del jugador
+            }
+
+            // Método para actualizar la posición del jugador basada en las teclas presionadas
+            update() {
+                if (keys['ArrowUp'] || keys['w']) this.y -= this.speed;
+                if (keys['ArrowDown'] || keys['s']) this.y += this.speed;
+                if (keys['ArrowLeft'] || keys['a']) this.x -= this.speed;
+                if (keys['ArrowRight'] || keys['d']) this.x += this.speed;
+
+                // Limitar al jugador dentro de los límites del canvas
+                this.x = Math.max(0, Math.min(this.x, GAME_WIDTH - this.width));
+                this.y = Math.max(0, Math.min(this.y, GAME_HEIGHT - this.height));
+            }
+        }
+
+        /**
+         * Clase para el orbe de energía, hereda de GameObject.
+         */
+        class EnergyOrb extends GameObject {
+            constructor() {
+                // Posición inicial aleatoria dentro del canvas
+                super(
+                    Math.random() * (GAME_WIDTH - 15),
+                    Math.random() * (GAME_HEIGHT - 15),
+                    15, 15, '#00ff00' // Tamaño y color del orbe (verde)
+                );
+            }
+
+            // Método para reposicionar el orbe después de ser recolectado
+            respawn() {
+                this.x = Math.random() * (GAME_WIDTH - this.width);
+                this.y = Math.random() * (GAME_HEIGHT - this.height);
+            }
+        }
+
+        /**
+         * Clase para la barrera láser, hereda de GameObject.
+         * Demuestra un comportamiento de movimiento autónomo.
+         */
+        class LaserBarrier extends GameObject {
+            constructor(x, y, width, height, speed) {
+                super(x, y, width, height, '#ff0000'); // Color de la barrera (rojo)
+                this.speed = speed;
+                this.direction = 1; // 1 para derecha, -1 para izquierda
+            }
+
+            // Método para actualizar la posición de la barrera (movimiento horizontal)
+            update() {
+                this.x += this.speed * this.direction;
+
+                // Rebotar en los bordes del canvas
+                if (this.x + this.width > GAME_WIDTH || this.x < 0) {
+                    this.direction *= -1; // Invierte la dirección
+                }
+            }
+        }
+
+        /**
+         * Clase principal del juego.
+         * Encapsula la lógica central del juego, el bucle principal y la gestión de objetos.
+         */
+        class Game {
+            constructor() {
+                this.player = new Player(GAME_WIDTH / 2 - 10, GAME_HEIGHT / 2 - 10); // Crea el jugador
+                this.energyOrb = new EnergyOrb(); // Crea el orbe de energía
+                this.laserBarrier = new LaserBarrier(0, GAME_HEIGHT / 3, 80, 10, 2); // Crea la barrera láser
+
+                this.score = 0;
+                this.level = 1;
+                this.isGameOver = false;
+                this.animationFrameId = null; // Para controlar el bucle de requestAnimationFrame
+            }
+
+            // Inicializa el juego al inicio o al reiniciar
+            init() {
+                this.score = 0;
+                this.level = 1;
+                this.isGameOver = false;
+                this.player = new Player(GAME_WIDTH / 2 - 10, GAME_HEIGHT / 2 - 10);
+                this.energyOrb.respawn(); // Asegura que el orbe esté en una nueva posición
+                this.laserBarrier = new LaserBarrier(0, GAME_HEIGHT / 3, 80, 10, 2); // Reinicia la barrera
+
+                // Muestra la pantalla del juego y oculta otras
+                startScreen.classList.add('hidden');
+                gameOverScreen.classList.add('hidden');
+                gameMessage.textContent = ''; // Limpia cualquier mensaje anterior
+
+                this.updateUI(); // Actualiza la UI para mostrar 0 puntos y nivel 1
+
+                // Cancela cualquier bucle de animación anterior y comienza uno nuevo
+                if (this.animationFrameId) {
+                    cancelAnimationFrame(this.animationFrameId);
+                }
+                this.gameLoop();
+            }
+
+            // Actualiza el estado de todos los objetos del juego
+            update() {
+                if (this.isGameOver) return; // No actualizar si el juego ha terminado
+
+                this.player.update();
+                this.laserBarrier.update();
+
+                // Colisión del jugador con el orbe de energía
+                if (this.player.isColliding(this.energyOrb)) {
+                    this.score += 10;
+                    gameMessage.textContent = '¡Energía recolectada!';
+                    gameMessage.style.color = '#00ff00';
+                    setTimeout(() => gameMessage.textContent = '', 800); // Limpia mensaje después de un tiempo
+                    this.energyOrb.respawn(); // Reposiciona el orbe
+
+                    // Aumentar la dificultad cada 50 puntos
+                    if (this.score % 50 === 0 && this.score !== 0) {
+                        this.level++;
+                        this.laserBarrier.speed += 0.5; // Aumenta la velocidad de la barrera
+                        this.player.speed += 0.1; // Ligeramente más rápido el jugador para compensar
+                        gameMessage.textContent = `¡NIVEL ${this.level} ALCANZADO!`;
+                        gameMessage.style.color = '#ffe066';
+                        setTimeout(() => gameMessage.textContent = '', 1500);
+                    }
+                }
+
+                // Colisión del jugador con la barrera láser
+                if (this.player.isColliding(this.laserBarrier)) {
+                    this.gameOver('¡Has chocado con la barrera láser!');
+                }
+
+                this.updateUI(); // Actualiza la puntuación y el nivel en la UI
+            }
+
+            // Dibuja todos los objetos en el canvas
+            draw() {
+                // Limpiar el canvas en cada frame
+                ctx.clearRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+                // Dibujar objetos
+                this.player.draw(ctx);
+                this.energyOrb.draw(ctx);
+                this.laserBarrier.draw(ctx);
+            }
+
+            // Bucle principal del juego
+            gameLoop = () => { // Usar función flecha para mantener 'this' en el contexto de la clase
+                this.update();
+                this.draw();
+                // Solicitar el siguiente frame de animación
+                this.animationFrameId = requestAnimationFrame(this.gameLoop);
+            }
+
+            // Actualiza los displays de la interfaz de usuario
+            updateUI() {
+                scoreDisplay.textContent = this.score;
+                levelDisplay.textContent = this.level;
+                finalScoreDisplay.textContent = this.score; // Para la pantalla de Game Over
+            }
+
+            // Maneja el fin del juego
+            gameOver(message) {
+                this.isGameOver = true;
+                cancelAnimationFrame(this.animationFrameId); // Detener el bucle de animación
+                gameMessage.textContent = ''; // Limpiar mensaje de juego
+                gameOverScreen.classList.remove('hidden'); // Mostrar pantalla de Game Over
+                document.getElementById('finalScoreDisplay').textContent = this.score; // Asegurar puntuación final
+            }
+        }
+
+        // Crear una instancia del juego
+        const game = new Game();
+
+        // Configurar los botones de inicio y reinicio
+        startButton.addEventListener('click', () => game.init());
+        restartButton.addEventListener('click', () => game.init());
+
+        // Mostrar la pantalla de inicio al cargar la página
+        window.onload = () => {
+            startScreen.classList.remove('hidden');
+            gameOverScreen.classList.add('hidden');
+        };
+    </script>
+</body>
+</html>

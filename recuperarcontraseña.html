@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar y Restablecer Contraseña</title>
+    <!-- Incluye Tailwind CSS para estilizado rápido y responsive -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="icon" href="img/logo-001.jpg">
+    <style>
+        /* Estilos generales del cuerpo, consistentes con index.html */
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); /* Fondo degradado oscuro */
+            color: #f8fafc; /* Color de texto principal (blanco casi gris) */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 1rem; /* Padding general para pantallas pequeñas */
+        }
+        /* Contenedor principal de la aplicación, consistente con otros formularios */
+        .main-container {
+            background-color: #1e293b; /* Fondo de la tarjeta (gris oscuro) */
+            padding: 2rem;
+            border-radius: 0.75rem; /* Bordes redondeados */
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.2); /* Sombra suave */
+            width: 100%;
+            max-width: 400px; /* Ancho máximo similar al del modal de login */
+        }
+        /* Estilos de encabezados, consistentes con index.html */
+        h1, h2 {
+            color: #6ee7b7; /* Color turquesa de acento */
+            text-align: center;
+            margin-bottom: 1.5rem;
+            font-weight: 700; /* Negrita para los títulos */
+        }
+        p {
+            color: #cbd5e0; /* Color gris claro para texto informativo */
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Estilos para grupos de formulario (etiquetas e inputs) */
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #cbd5e0; /* Color de etiqueta (gris claro) */
+            font-weight: 500; /* Peso de fuente medio */
+        }
+        .form-group input {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #4a5568; /* Borde gris oscuro */
+            background-color: #0f172a; /* Fondo del input (más oscuro que el contenedor) */
+            color: #f8fafc; /* Color de texto del input */
+            transition: all 0.2s ease-in-out; /* Transición suave para foco */
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: #6ee7b7; /* Borde turquesa en foco */
+            box-shadow: 0 0 0 2px rgba(110, 231, 183, 0.5); /* Sombra de foco turquesa */
+        }
+
+        /* Estilos de botones generales */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            text-align: center;
+            border: none; /* Eliminar borde por defecto */
+            width: 100%; /* Botones de ancho completo */
+        }
+        .btn:hover {
+            transform: translateY(-2px); /* Efecto ligero de elevación */
+        }
+        .btn-primary {
+            background-color: #10b981; /* Color turquesa primario */
+            color: #0f172a; /* Texto oscuro */
+        }
+        .btn-primary:hover {
+            background-color: #059669; /* Turquesa más oscuro al pasar el ratón */
+        }
+        /* Botones específicos por sección para diferenciarlos */
+        #forgotPasswordSection .btn { background-color: #10b981; color: #0f172a; }
+        #forgotPasswordSection .btn:hover { background-color: #059669; }
+        #verifyCodeSection .btn { background-color: #a855f7; color: #f8fafc; } /* Morado */
+        #verifyCodeSection .btn:hover { background-color: #9333ea; }
+        #resetPasswordSection .btn { background-color: #8b5cf6; color: #f8fafc; } /* Morado más fuerte */
+        #resetPasswordSection .btn:hover { background-color: #6d28d9; }
+
+
+        /* Estilos para enlaces/botones de "Volver / Reenviar código" */
+        .link-button {
+            background: none;
+            border: none;
+            color: #6ee7b7; /* Color turquesa para enlaces */
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: text-decoration 0.3s ease;
+            display: block; /* Para que ocupe todo el ancho y se centre */
+            text-align: center;
+            margin-top: 1rem;
+        }
+        .link-button:hover {
+            text-decoration: underline;
+        }
+
+        /* Estilos para la caja de mensajes */
+        .message-box {
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            margin-top: 1.5rem;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .message-success {
+            background-color: #10b981; /* Fondo turquesa para éxito */
+            color: #0f172a; /* Texto oscuro */
+        }
+        .message-error {
+            background-color: #ef4444; /* Fondo rojo para error */
+            color: #f8fafc; /* Texto blanco */
+        }
+
+        /* Oculta las secciones por defecto */
+        #forgotPasswordSection, #verifyCodeSection, #resetPasswordSection {
+            display: none;
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+
+    <!-- Contenedor principal de la aplicación -->
+    <div class="main-container">
+        <h1 class="text-3xl font-extrabold mb-8">Gestión de Contraseña</h1>
+
+        <!-- Sección 1: "Olvidé mi Contraseña" (Solicitar Código) -->
+        <div id="forgotPasswordSection">
+            <h2 class="text-2xl font-bold mb-6">Olvidé mi Contraseña</h2>
+            <p class="text-center mb-6">Introduce tu correo electrónico para recibir un código de verificación.</p>
+            
+            <form id="forgotPasswordForm" class="space-y-4">
+                <div class="form-group">
+                    <label for="forgot_email">Correo Electrónico:</label>
+                    <input type="email" id="forgot_email" name="correo_electronico" required
+                        class="input-field" placeholder="tu@ejemplo.com">
+                </div>
+                
+                <input type="hidden" name="forgot_password" value="1">
+
+                <button type="submit" class="btn btn-primary">
+                    Enviar Código de Verificación
+                </button>
+            </form>
+            
+            <p id="forgotMessage" class="message-box hidden"></p>
+        </div>
+
+        <!-- Sección 2: "Verificar Código" (Inicialmente oculta) -->
+        <div id="verifyCodeSection">
+            <h2 class="text-2xl font-bold mb-6">Verificar Código</h2>
+            <p class="text-center mb-6">Introduce el código de verificación que hemos enviado a <span id="displayEmail" class="font-bold text-gray-100"></span>.</p>
+            
+            <form id="verifyCodeForm" class="space-y-4">
+                <input type="hidden" id="verify_email" name="correo_electronico">
+
+                <div class="form-group">
+                    <label for="verification_code">Código de Verificación:</label>
+                    <input type="text" id="verification_code" name="verification_code" required maxlength="6"
+                           class="input-field text-center text-xl font-bold tracking-widest" placeholder="------">
+                </div>
+                
+                <input type="hidden" name="verify_code" value="1">
+
+                <button type="submit" class="btn">
+                    Verificar Código
+                </button>
+            </form>
+            
+            <p id="verifyMessage" class="message-box hidden"></p>
+
+            <button id="resendCodeButton" class="link-button">
+                Volver / Reenviar código
+            </button>
+        </div>
+
+        <!-- Sección 3: "Restablecer Contraseña" (Inicialmente oculta) -->
+        <div id="resetPasswordSection">
+            <h2 class="text-2xl font-bold mb-6">Restablecer tu Contraseña</h2>
+            <p class="text-center mb-6">Introduce tu nueva contraseña.</p>
+
+            <form id="resetPasswordForm" class="space-y-4">
+                <input type="hidden" id="temp_token" name="temp_token" value="">
+                
+                <div class="form-group">
+                    <label for="new_password">Nueva Contraseña:</label>
+                    <input type="password" id="new_password" name="new_password" required
+                           class="input-field" placeholder="Mínimo 8 caracteres">
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirm_password">Confirmar Contraseña:</label>
+                    <input type="password" id="confirm_password" name="confirm_password" required
+                           class="input-field" placeholder="Confirma tu nueva contraseña">
+                </div>
+                
+                <input type="hidden" name="reset_password" value="1">
+
+                <button type="submit" class="btn">
+                    Establecer Nueva Contraseña
+                </button>
+            </form>
+            
+            <p id="resetMessage" class="message-box hidden"></p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const forgotPasswordSection = document.getElementById('forgotPasswordSection');
+            const verifyCodeSection = document.getElementById('verifyCodeSection');
+            const resetPasswordSection = document.getElementById('resetPasswordSection');
+
+            const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+            const verifyCodeForm = document.getElementById('verifyCodeForm');
+            const resetPasswordForm = document.getElementById('resetPasswordForm');
+
+            const forgotMessage = document.getElementById('forgotMessage');
+            const verifyMessage = document.getElementById('verifyMessage');
+            const resetMessage = document.getElementById('resetMessage');
+
+            const forgotEmailInput = document.getElementById('forgot_email');
+            const displayEmailSpan = document.getElementById('displayEmail');
+            const verifyEmailInput = document.getElementById('verify_email');
+            const verificationCodeInput = document.getElementById('verification_code');
+            const newPasswordInput = document.getElementById('new_password');
+            const confirmPasswordInput = document.getElementById('confirm_password');
+            const tempTokenInput = document.getElementById('temp_token');
+            const resendCodeButton = document.getElementById('resendCodeButton');
+
+            function showSection(sectionId) {
+                forgotPasswordSection.style.display = 'none';
+                verifyCodeSection.style.display = 'none';
+                resetPasswordSection.style.display = 'none';
+                document.getElementById(sectionId).style.display = 'block';
+            }
+
+            function displayMessage(element, message, isSuccess) {
+                element.textContent = message;
+                element.classList.remove('hidden', 'message-success', 'message-error');
+                element.classList.add('message-box');
+                if (isSuccess) {
+                    element.classList.add('message-success');
+                } else {
+                    element.classList.add('message-error');
+                }
+                element.classList.remove('hidden');
+                setTimeout(() => {
+                    element.classList.add('hidden');
+                }, 3000);
+            }
+
+            function getMockUsers() {
+                return JSON.parse(localStorage.getItem('natlan_mock_users') || '[]');
+            }
+
+            function persistMockUsers(users) {
+                localStorage.setItem('natlan_mock_users', JSON.stringify(users));
+            }
+
+            function getRecoveryState() {
+                return JSON.parse(localStorage.getItem('natlan_recovery_state') || '{}');
+            }
+
+            function setRecoveryState(data) {
+                localStorage.setItem('natlan_recovery_state', JSON.stringify(data));
+            }
+
+            showSection('forgotPasswordSection');
+
+            forgotPasswordForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const email = forgotEmailInput.value.trim();
+                if (!email) {
+                    displayMessage(forgotMessage, 'Escribe un correo válido.', false);
+                    return;
+                }
+
+                const users = getMockUsers();
+                const userExists = users.some(user => user.correo_electronico.toLowerCase() === email.toLowerCase());
+                const code = String(Math.floor(100000 + Math.random() * 900000));
+                setRecoveryState({ email, code, token: 'demo-token-' + Date.now() });
+
+                displayMessage(forgotMessage, userExists
+                    ? 'Si el correo está registrado, se ha enviado un código de verificación. Código demo: ' + code
+                    : 'Código demo generado: ' + code + '. Este correo no existe en la simulación local.', true);
+
+                displayEmailSpan.textContent = email;
+                verifyEmailInput.value = email;
+                setTimeout(() => showSection('verifyCodeSection'), 1000);
+            });
+
+            verifyCodeForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const state = getRecoveryState();
+                const enteredCode = verificationCodeInput.value.trim();
+
+                if (!enteredCode) {
+                    displayMessage(verifyMessage, 'Ingresa el código de verificación.', false);
+                    return;
+                }
+
+                if (state.code && enteredCode === state.code) {
+                    tempTokenInput.value = state.token;
+                    displayMessage(verifyMessage, 'Código verificado con éxito. Ahora puedes restablecer tu contraseña.', true);
+                    setTimeout(() => showSection('resetPasswordSection'), 1000);
+                } else {
+                    displayMessage(verifyMessage, 'Código incorrecto o expirado.', false);
+                }
+            });
+
+            resetPasswordForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                const newPassword = newPasswordInput.value;
+                const confirmPassword = confirmPasswordInput.value;
+
+                if (newPassword.length < 8) {
+                    displayMessage(resetMessage, 'La contraseña debe tener al menos 8 caracteres.', false);
+                    return;
+                }
+
+                if (newPassword !== confirmPassword) {
+                    displayMessage(resetMessage, 'Las contraseñas no coinciden.', false);
+                    return;
+                }
+
+                const state = getRecoveryState();
+                const users = getMockUsers();
+                const email = state.email || verifyEmailInput.value;
+                const userIndex = users.findIndex(user => user.correo_electronico.toLowerCase() === email.toLowerCase());
+
+                if (userIndex >= 0) {
+                    users[userIndex].contrasena = newPassword;
+                    persistMockUsers(users);
+                }
+
+                displayMessage(resetMessage, '¡Tu contraseña ha sido restablecida con éxito! Puedes iniciar sesión con la nueva clave.', true);
+                tempTokenInput.value = '';
+                resetPasswordForm.reset();
+                localStorage.removeItem('natlan_recovery_state');
+            });
+
+            resendCodeButton.addEventListener('click', function() {
+                forgotEmailInput.value = '';
+                forgotMessage.textContent = '';
+                forgotMessage.classList.add('hidden');
+                verifyCodeForm.reset();
+                verifyMessage.textContent = '';
+                verifyMessage.classList.add('hidden');
+                resetPasswordForm.reset();
+                resetMessage.textContent = '';
+                resetMessage.classList.add('hidden');
+                showSection('forgotPasswordSection');
+            });
+        });
+    </script>
+</body>
+</html>

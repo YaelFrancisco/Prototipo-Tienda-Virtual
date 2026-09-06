@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supervivencia Zombie: Ruinas y Refugio</title>
+    <link rel="icon" href="img/logo-001.jpg">
+    <style>
+        body {
+    margin: 0;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #1a1a1a;
+    font-family: 'Inter', sans-serif;
+    color: #eee;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+#game-container {
+    display: flex;
+    flex-direction: row; /* Canvas a la izquierda, UI a la derecha */
+    border: 2px solid #444;
+    background-color: #2b2b2b;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.2);
+    border-radius: 12px;
+    overflow: hidden;
+    width: 95vw;
+    max-width: 1200px; /* Ancho máximo para el juego */
+    height: 90vh;
+    max-height: 700px; /* Alto máximo para el juego */
+    position: relative; /* Para las pantallas de overlay */
+}
+
+#gameCanvas {
+    background-color: #0d0d0d;
+    display: block;
+    width: 800px; /* Ancho fijo para el canvas */
+    height: 600px; /* Alto fijo para el canvas */
+    flex-shrink: 0; /* Evita que el canvas se encoja */
+    border-right: 1px solid #444; /* Separador visual */
+}
+
+#game-ui {
+    flex-grow: 1; /* La UI ocupa el espacio restante */
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* Distribuye las secciones */
+    min-width: 200px; /* Ancho mínimo para la UI */
+    max-width: 300px; /* Ancho máximo para la UI */
+    overflow-y: auto; /* Scroll si el contenido es mucho */
+}
+
+.ui-section {
+    background-color: #3a3a3a;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 15px; /* Espacio entre secciones */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.ui-section h3 {
+    margin-top: 0;
+    color: #0f0; /* Color verde para los títulos de sección */
+    border-bottom: 1px solid #555;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+.ui-section p {
+    margin: 5px 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+.ui-section p span {
+    font-weight: bold;
+    color: #ffcc00; /* Color amarillo para los valores */
+}
+
+.message-log {
+    flex-grow: 1; /* El registro de mensajes ocupa el espacio restante */
+    max-height: 200px; /* Altura máxima para el registro de mensajes */
+    overflow-y: auto;
+    font-size: 0.9em;
+    color: #bbb;
+}
+
+.message-log div {
+    margin-bottom: 4px;
+    line-height: 1.2;
+}
+
+button {
+    width: 100%;
+    padding: 10px 15px;
+    font-size: 1.1em;
+    background-color: #0f0;
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 8px rgba(0, 255, 0, 0.2);
+    margin-top: 5px; /* Espacio para el botón en la sección de acciones */
+}
+
+button:hover {
+    background-color: #0c0;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 255, 0, 0.3);
+}
+
+button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 255, 0, 0.1);
+}
+
+/* Pantallas de overlay (inicio, fin de juego) */
+.game-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-align: center;
+    z-index: 20; /* Asegura que estén por encima de todo */
+    border-radius: 12px;
+}
+
+.game-overlay h1 {
+    color: #0f0;
+    margin-bottom: 10px;
+    font-size: 3em;
+    text-shadow: 0 0 10px #0f0;
+}
+
+.game-overlay h2 {
+    color: #ffcc00;
+    margin-bottom: 25px;
+    font-size: 2em;
+}
+
+.game-overlay p {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+}
+
+.game-overlay button {
+    margin-top: 30px;
+    padding: 18px 40px;
+    font-size: 1.8em;
+    box-shadow: 0 8px 16px rgba(0, 255, 0, 0.4);
+}
+
+/* Media queries para responsividad */
+@media (max-width: 1000px) {
+    #game-container {
+        flex-direction: column; /* Apila el canvas y la UI en pantallas pequeñas */
+        height: 98vh;
+        width: 98vw;
+        max-width: none;
+        max-height: none;
+    }
+
+    #gameCanvas {
+        width: 100%;
+        height: calc(100% - 250px); /* Ajusta la altura del canvas para dejar espacio a la UI */
+        max-height: 500px; /* Un máximo para el canvas */
+        border-right: none;
+        border-bottom: 1px solid #444;
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+
+    #game-ui {
+        width: 100%;
+        min-width: unset;
+        max-width: unset;
+        height: 250px; /* Altura fija para la UI en móvil */
+        flex-direction: row; /* Las secciones de UI se organizan en fila */
+        flex-wrap: wrap; /* Permite que las secciones se envuelvan */
+        justify-content: space-around;
+        align-items: flex-start;
+        border-bottom-left-radius: 8px;
+        border-bottom-right-radius: 8px;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+    }
+
+    .ui-section {
+        flex: 1 1 45%; /* Cada sección ocupa casi la mitad del ancho */
+        margin-bottom: 10px;
+    }
+
+    .message-log {
+        flex: 1 1 95%; /* El registro de mensajes ocupa casi todo el ancho */
+        max-height: 100px;
+    }
+
+    .game-overlay h1 {
+        font-size: 2.2em;
+    }
+    .game-overlay h2 {
+        font-size: 1.5em;
+    }
+    .game-overlay p {
+        font-size: 1em;
+    }
+    .game-overlay button {
+        font-size: 1.4em;
+        padding: 12px 25px;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <!-- El canvas principal para dibujar el mapa, jugador, zombies, etc. -->
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+
+        <!-- Interfaz de usuario del juego -->
+        <div id="game-ui">
+            <div class="ui-section">
+                <h3>Estado:</h3>
+                <p>Salud: <span id="health">100</span></p>
+                <p>Puntuación: <span id="score">0</span></p>
+                <p>Mascota: <span id="pet-status">No</span></p>
+            </div>
+
+            <div class="ui-section">
+                <h3>Inventario:</h3>
+                <p>Madera: <span id="wood">0</span></p>
+                <p>Metal: <span id="metal">0</span></p>
+            </div>
+
+            <div class="ui-section">
+                <h3>Acciones:</h3>
+                <button id="buildButton">Construir Refugio</button>
+            </div>
+            
+            <div class="ui-section message-log">
+                <h3>Registro:</h3>
+                <div id="message-log"></div>
+            </div>
+        </div>
+
+        <!-- Pantalla de inicio -->
+        <div id="start-screen" class="game-overlay">
+            <h1>Supervivencia Zombie</h1>
+            <h2>Ruinas y Refugio</h2>
+            <p>Usa **WASD** o **Flechas** para moverte.</p>
+            <p>Haz clic con el **ratón** en el mapa para interactuar (disparar, recolectar).</p>
+            <p>Construye tu refugio para sobrevivir.</p>
+            <button id="startButton">Comenzar Aventura</button>
+        </div>
+
+        <!-- Pantalla de fin de juego -->
+        <div id="game-over-screen" class="game-overlay" style="display: none;">
+            <h1>¡Juego Terminado!</h1>
+            <p>Puntuación Final: <span id="finalScore">0</span></p>
+            <p id="game-over-reason"></p>
+            <button id="restartButton">Jugar de Nuevo</button>
+        </div>
+    </div>
+
+    <!-- Script del juego -->
+    <script>
+        // Get canvas and context
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// Get UI elements
+const scoreDisplay = document.getElementById('score');
+const healthDisplay = document.getElementById('health');
+const woodDisplay = document.getElementById('wood');
+const metalDisplay = document.getElementById('metal');
+const petStatusDisplay = document.getElementById('pet-status');
+const messageLog = document.getElementById('message-log');
+const startScreen = document.getElementById('start-screen');
+const startButton = document.getElementById('startButton');
+const gameOverScreen = document.getElementById('game-over-screen');
+const finalScoreDisplay = document.getElementById('finalScore');
+const gameOverReasonDisplay = document.getElementById('game-over-reason');
+const restartButton = document.getElementById('restartButton');
+const buildButton = document.getElementById('buildButton');
+
+// Game state variables
+let gameRunning = false;
+let animationFrameId; // For requestAnimationFrame loop
+let lastFrameTime = 0; // For delta time calculation
+
+// Game settings
+const TILE_SIZE = 40; // Tamaño de cada casilla
+const MAP_COLS = canvas.width / TILE_SIZE;
+const MAP_ROWS = canvas.height / TILE_SIZE;
+const GAME_SPEED_MULTIPLIER = 1; // General speed multiplier for balancing
+
+// Player
+const player = {
+    x: MAP_COLS / 2, // Player position in map tiles
+    y: MAP_ROWS / 2,
+    health: 100,
+    inventory: {
+        wood: 0,
+        metal: 0
+    },
+    speed: 0.15, // Speed in tiles per frame
+    color: 'blue',
+    size: 0.8 // Size relative to TILE_SIZE
+};
+
+// Player movement
+let dx = 0;
+let dy = 0;
+
+// Bullets
+const bullets = [];
+const BULLET_SPEED = 0.5; // Speed in tiles per frame
+const BULLET_COLOR = 'yellow';
+const BULLET_SIZE = 0.2; // Size relative to TILE_SIZE
+const SHOOT_COOLDOWN = 300; // milliseconds
+let lastShotTime = 0;
+
+// Zombies
+const zombies = [];
+const ZOMBIE_SPEED = 0.05; // Speed in tiles per frame
+const ZOMBIE_COLOR = 'green';
+const ZOMBIE_SIZE = 0.9; // Size relative to TILE_SIZE
+const MAX_ZOMBIE_HEALTH = 3;
+const ZOMBIE_DAMAGE = 15; // Damage to player/shelter
+const ZOMBIE_SPAWN_INTERVAL = 6000; // milliseconds
+let lastZombieSpawnTime = 0;
+let zombieCount = 0;
+let zombieSpawnRateIncrease = 0.99; // Factor to decrease interval over time
+
+// Pet (Dog)
+let pet = null;
+const PET_COLOR = 'orange';
+const PET_SIZE = 0.7;
+const PET_SPEED = 0.1; // Follow speed
+const PET_ATTACK_DAMAGE = 1; // Damage per pet hit
+const PET_ATTACK_COOLDOWN = 1000; // milliseconds
+let lastPetAttackTime = 0;
+let petFound = false;
+
+// Shelter
+const shelterTiles = new Set(); // Stores "x,y" strings of shelter tiles
+const SHELTER_BUILD_COST = { wood: 10, metal: 5 };
+const SHELTER_EXPAND_AMOUNT = 1; // Number of tiles to add per build
+const SHELTER_COLOR = '#8B4513'; // Brown color for shelter
+
+// Map types
+const MAP_TYPE = {
+    GRASS: 0,
+    WOOD_RESOURCE: 1,
+    METAL_RESOURCE: 2,
+    RUIN: 3, // Non-collectible, just visual
+    SHELTER: 4,
+    PET_SPAWN: 5 // Tile where pet can be found
+};
+
+// Map colors for drawing
+const TILE_COLORS = {
+    [MAP_TYPE.GRASS]: '#228B22', // ForestGreen
+    [MAP_TYPE.WOOD_RESOURCE]: '#6B8E23', // OliveDrab (trees)
+    [MAP_TYPE.METAL_RESOURCE]: '#808080', // Gray (scrap metal)
+    [MAP_TYPE.RUIN]: '#4B0082', // Indigo (ruined buildings)
+    [MAP_TYPE.SHELTER]: SHELTER_COLOR,
+    [MAP_TYPE.PET_SPAWN]: '#FFD700' // Gold for pet location
+};
+
+// Map generation
+let gameMap = [];
+
+// Input handling (keys pressed)
+const keys = {};
+
+// --- Utility Functions ---
+
+// Add a message to the UI log
+function addMessage(msg) {
+    const p = document.createElement('p');
+    p.textContent = msg;
+    messageLog.prepend(p); // Add to the top
+    if (messageLog.children.length > 10) { // Keep only last 10 messages
+        messageLog.removeChild(messageLog.lastChild);
+    }
+}
+
+// Update UI displays
+function updateUI() {
+    healthDisplay.textContent = Math.max(0, Math.floor(player.health));
+    scoreDisplay.textContent = score;
+    woodDisplay.textContent = player.inventory.wood;
+    metalDisplay.textContent = player.inventory.metal;
+    petStatusDisplay.textContent = petFound ? 'Sí' : 'No';
+}
+
+// Generate the initial game map
+function generateMap(rows, cols) {
+    gameMap = Array(rows).fill(null).map(() => Array(cols).fill(MAP_TYPE.GRASS));
+
+    // Scatter some resources and ruins
+    for (let i = 0; i < rows * cols * 0.15; i++) { // 15% of map for resources/ruins
+        const r = Math.floor(Math.random() * rows);
+        const c = Math.floor(Math.random() * cols);
+        const type = Math.random() < 0.5 ? MAP_TYPE.WOOD_RESOURCE : MAP_TYPE.METAL_RESOURCE;
+        gameMap[r][c] = type;
+    }
+    for (let i = 0; i < rows * cols * 0.05; i++) { // 5% for ruins
+        const r = Math.floor(Math.random() * rows);
+        const c = Math.floor(Math.random() * cols);
+        gameMap[r][c] = MAP_TYPE.RUIN;
+    }
+
+    // Place pet spawn tile
+    let petSpawnX, petSpawnY;
+    do {
+        petSpawnX = Math.floor(Math.random() * cols);
+        petSpawnY = Math.floor(Math.random() * rows);
+    } while (gameMap[petSpawnY][petSpawnX] !== MAP_TYPE.GRASS ||
+             (Math.abs(petSpawnX - player.x) < 5 && Math.abs(petSpawnY - player.y) < 5)); // Not too close to start
+    gameMap[petSpawnY][petSpawnX] = MAP_TYPE.PET_SPAWN;
+    addMessage('¡Se rumorea que hay una mascota perdida en las ruinas! (Búscala en un cuadro dorado)');
+}
+
+// --- Drawing Functions ---
+
+// Draw the entire map grid
+function drawMap() {
+    for (let r = 0; r < MAP_ROWS; r++) {
+        for (let c = 0; c < MAP_COLS; c++) {
+            const tileType = gameMap[r][c];
+            ctx.fillStyle = TILE_COLORS[tileType];
+            ctx.fillRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+
+            // Draw grid lines for better visibility
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 0.5;
+            ctx.strokeRect(c * TILE_SIZE, r * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+
+            // Add simple visual cues for resources
+            if (tileType === MAP_TYPE.WOOD_RESOURCE) {
+                ctx.fillStyle = '#654321'; // Tree trunk
+                ctx.fillRect(c * TILE_SIZE + TILE_SIZE * 0.4, r * TILE_SIZE + TILE_SIZE * 0.2, TILE_SIZE * 0.2, TILE_SIZE * 0.6);
+                ctx.fillStyle = '#006400'; // DarkGreen leaves
+                ctx.beginPath();
+                ctx.arc(c * TILE_SIZE + TILE_SIZE / 2, r * TILE_SIZE + TILE_SIZE * 0.3, TILE_SIZE * 0.3, 0, Math.PI * 2);
+                ctx.fill();
+            } else if (tileType === MAP_TYPE.METAL_RESOURCE) {
+                ctx.fillStyle = '#A9A9A9'; // DarkGray for metal scraps
+                ctx.fillRect(c * TILE_SIZE + TILE_SIZE * 0.2, r * TILE_SIZE + TILE_SIZE * 0.2, TILE_SIZE * 0.6, TILE_SIZE * 0.15);
+                ctx.fillRect(c * TILE_SIZE + TILE_SIZE * 0.3, r * TILE_SIZE + TILE_SIZE * 0.5, TILE_SIZE * 0.5, TILE_SIZE * 0.1);
+            } else if (tileType === MAP_TYPE.RUIN) {
+                 ctx.fillStyle = '#666'; // Darker gray for ruin details
+                 ctx.fillRect(c * TILE_SIZE + TILE_SIZE * 0.1, r * TILE_SIZE + TILE_SIZE * 0.1, TILE_SIZE * 0.8, TILE_SIZE * 0.8);
+                 ctx.fillStyle = '#444'; // Even darker for inner ruin details
+                 ctx.fillRect(c * TILE_SIZE + TILE_SIZE * 0.2, r * TILE_SIZE + TILE_SIZE * 0.2, TILE_SIZE * 0.6, TILE_SIZE * 0.6);
+            } else if (tileType === MAP_TYPE.PET_SPAWN) {
+                 // Draw a golden outline for the pet spawn tile
+                 ctx.strokeStyle = TILE_COLORS[MAP_TYPE.PET_SPAWN];
+                 ctx.lineWidth = 3;
+                 ctx.strokeRect(c * TILE_SIZE + 2, r * TILE_SIZE + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+            }
+        }
+    }
+}
+
+// Draw the player
+function drawPlayer() {
+    ctx.fillStyle = player.color;
+    const playerPxX = player.x * TILE_SIZE;
+    const playerPxY = player.y * TILE_SIZE;
+    const playerPxSize = player.size * TILE_SIZE;
+    ctx.fillRect(playerPxX - playerPxSize / 2, playerPxY - playerPxSize / 2, playerPxSize, playerPxSize);
+    ctx.strokeStyle = 'black';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(playerPxX - playerPxSize / 2, playerPxY - playerPxSize / 2, playerPxSize, playerPxSize);
+}
+
+// Draw a bullet
+function drawBullet(bullet) {
+    ctx.fillStyle = BULLET_COLOR;
+    const bulletPxX = bullet.x * TILE_SIZE;
+    const bulletPxY = bullet.y * TILE_SIZE;
+    const bulletPxSize = BULLET_SIZE * TILE_SIZE;
+    ctx.fillRect(bulletPxX - bulletPxSize / 2, bulletPxY - bulletPxSize / 2, bulletPxSize, bulletPxSize * 2); // Taller bullet
+}
+
+// Draw a zombie
+function drawZombie(zombie) {
+    ctx.fillStyle = ZOMBIE_COLOR;
+    const zombiePxX = zombie.x * TILE_SIZE;
+    const zombiePxY = zombie.y * TILE_SIZE;
+    const zombiePxSize = ZOMBIE_SIZE * TILE_SIZE;
+    ctx.fillRect(zombiePxX - zombiePxSize / 2, zombiePxY - zombiePxSize / 2, zombiePxSize, zombiePxSize);
+    ctx.strokeStyle = 'darkgreen';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(zombiePxX - zombiePxSize / 2, zombiePxY - zombiePxSize / 2, zombiePxSize, zombiePxSize);
+
+    // Draw zombie health bar
+    const healthBarWidth = zombiePxSize * (zombie.health / MAX_ZOMBIE_HEALTH);
+    ctx.fillStyle = 'red';
+    ctx.fillRect(zombiePxX - zombiePxSize / 2, zombiePxY - zombiePxSize / 2 - 8, healthBarWidth, 4);
+    ctx.strokeStyle = 'darkred';
+    ctx.strokeRect(zombiePxX - zombiePxSize / 2, zombiePxY - zombiePxSize / 2 - 8, zombiePxSize, 4);
+}
+
+// Draw the pet
+function drawPet() {
+    if (!pet) return;
+    ctx.fillStyle = PET_COLOR;
+    const petPxX = pet.x * TILE_SIZE;
+    const petPxY = pet.y * TILE_SIZE;
+    const petPxSize = PET_SIZE * TILE_SIZE;
+    ctx.beginPath();
+    ctx.arc(petPxX, petPxY, petPxSize / 2, 0, Math.PI * 2); // Draw as a circle
+    ctx.fill();
+    ctx.strokeStyle = 'darkorange';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    // Add simple "ears"
+    ctx.fillRect(petPxX - petPxSize * 0.4, petPxY - petPxSize * 0.6, petPxSize * 0.2, petPxSize * 0.2);
+    ctx.fillRect(petPxX + petPxSize * 0.2, petPxY - petPxSize * 0.6, petPxSize * 0.2, petPxSize * 0.2);
+}
+
+// --- Update Functions ---
+
+// Update player position based on dx, dy, and delta time
+function updatePlayer(deltaTime) {
+    const currentTileX = Math.floor(player.x);
+    const currentTileY = Math.floor(player.y);
+
+    const newX = player.x + dx * player.speed * (deltaTime / 16.67) * GAME_SPEED_MULTIPLIER;
+    const newY = player.y + dy * player.speed * (deltaTime / 16.67) * GAME_SPEED_MULTIPLIER;
+
+    // Basic collision with canvas boundaries (simplified as map edges)
+    player.x = Math.max(player.size / 2, Math.min(MAP_COLS - player.size / 2, newX));
+    player.y = Math.max(player.size / 2, Math.min(MAP_ROWS - player.size / 2, newY));
+
+    // Check for pet if on pet spawn tile
+    if (!petFound && gameMap[currentTileY] && gameMap[currentTileY][currentTileX] === MAP_TYPE.PET_SPAWN) {
+        petFound = true;
+        gameMap[currentTileY][currentTileX] = MAP_TYPE.GRASS; // Change tile back to grass
+        pet = { x: player.x, y: player.y };
+        addMessage('¡Has encontrado una mascota! ¡Ahora te seguirá y te ayudará!');
+    }
+}
+
+// Update bullet positions
+function updateBullets(deltaTime) {
+    for (let i = bullets.length - 1; i >= 0; i--) {
+        const bullet = bullets[i];
+        bullet.x += bullet.dirX * BULLET_SPEED * (deltaTime / 16.67) * GAME_SPEED_MULTIPLIER;
+        bullet.y += bullet.dirY * BULLET_SPEED * (deltaTime / 16.67) * GAME_SPEED_MULTIPLIER;
+
+        // Remove bullet if it's out of bounds
+        if (bullet.x < 0 || bullet.x > MAP_COLS || bullet.y < 0 || bullet.y > MAP_ROWS) {
+            bullets.splice(i, 1);
+        }
+    }
+}
+
+// Update zombie positions (chase player or wander)
+function updateZombies(deltaTime) {
+    for (let i = zombies.length - 1; i >= 0; i--) {
+        const zombie = zombies[i];
+
+        const targetX = player.x;
+        const targetY = player.y;
+
+        const angle = Math.atan2(targetY - zombie.y, targetX - zombie.x);
+        zombie.x += Math.cos(angle) * ZOMBIE_SPEED * (deltaTime / 16.67) * GAME_SPEED_MULTIPLIER;
+        zombie.y += Math.sin(angle) * ZOMBIE_SPEED * (deltaTime / 16.67) * GAME_SPEED_MULTIPLIER;
+
+        // Keep zombies within map bounds (they can't escape)
+        zombie.x = Math.max(ZOMBIE_SIZE / 2, Math.min(MAP_COLS - ZOMBIE_SIZE / 2, zombie.x));
+        zombie.y = Math.max(ZOMBIE_SIZE / 2, Math.min(MAP_ROWS - ZOMBIE_SIZE / 2, zombie.y));
+    }
+}
+
+// Update pet position (follows player)
+function updatePet(deltaTime) {
+    if (!pet) return;
+
+    const angle = Math.atan2(player.y - pet.y, player.x - pet.x);
+    const distance = Math.sqrt(Math.pow(player.x - pet.x, 2) + Math.pow(player.y - pet.y, 2));
+
+    if (distance > player.size * 1.5) { // Only move if pet is far enough
+        pet.x += Math.cos(angle) * PET_SPEED * deltaTime * GAME_SPEED_MULTIPLIER;
+        pet.y += Math.sin(angle) * PET_SPEED * deltaTime * GAME_SPEED_MULTIPLIER;
+    }
+}
+
+// --- Collision Functions ---
+
+// Generic AABB collision detection (uses object centers and sizes)
+function checkCollision(obj1, size1, obj2, size2) {
+    const left1 = obj1.x - size1 / 2;
+    const right1 = obj1.x + size1 / 2;
+    const top1 = obj1.y - size1 / 2;
+    const bottom1 = obj1.y + size1 / 2;
+
+    const left2 = obj2.x - size2 / 2;
+    const right2 = obj2.x + size2 / 2;
+    const top2 = obj2.y - size2 / 2;
+    const bottom2 = obj2.y + size2 / 2;
+
+    return right1 > left2 && left1 < right2 && bottom1 > top2 && top1 < bottom2;
+}
+
+// Handle bullet-zombie collisions
+function handleBulletZombieCollisions() {
+    for (let i = bullets.length - 1; i >= 0; i--) {
+        const bullet = bullets[i];
+        for (let j = zombies.length - 1; j >= 0; j--) {
+            const zombie = zombies[j];
+            if (checkCollision(bullet, BULLET_SIZE, zombie, ZOMBIE_SIZE)) {
+                zombie.health--;
+                bullets.splice(i, 1); // Remove bullet
+                if (zombie.health <= 0) {
+                    zombies.splice(j, 1); // Remove zombie
+                    score += 10;
+                    addMessage('¡Zombie eliminado!');
+                }
+                updateUI();
+                break; // A bullet can only hit one zombie
+            }
+        }
+    }
+}
+
+// Handle player-zombie collisions
+function handlePlayerZombieCollisions(deltaTime) {
+    for (let i = zombies.length - 1; i >= 0; i--) {
+        const zombie = zombies[i];
+        if (checkCollision(player, player.size, zombie, ZOMBIE_SIZE)) {
+            player.health -= ZOMBIE_DAMAGE * (deltaTime / 1000); // Damage over time
+            addMessage('¡Un zombie te ha mordido!');
+            updateUI();
+            if (player.health <= 0) {
+                endGame('Fuiste devorado por los zombies.');
+                return;
+            }
+        }
+    }
+}
+
+// Handle pet-zombie collisions (pet attacks zombies)
+function handlePetZombieCollisions(deltaTime) {
+    if (!pet || Date.now() - lastPetAttackTime < PET_ATTACK_COOLDOWN) return;
+
+    for (let i = zombies.length - 1; i >= 0; i--) {
+        const zombie = zombies[i];
+        if (checkCollision(pet, PET_SIZE, zombie, ZOMBIE_SIZE)) {
+            zombie.health -= PET_ATTACK_DAMAGE;
+            addMessage('Tu mascota ha atacado a un zombie!');
+            lastPetAttackTime = Date.now();
+            if (zombie.health <= 0) {
+                zombies.splice(i, 1);
+                score += 5; // Less points for pet kills
+                addMessage('¡Zombie eliminado por tu mascota!');
+            }
+            updateUI();
+            return; // Pet can only attack one zombie at a time
+        }
+    }
+}
+
+// --- Game Logic Functions ---
+
+// Spawn a new zombie
+function spawnZombie() {
+    const edge = Math.floor(Math.random() * 4); // 0: top, 1: right, 2: bottom, 3: left
+    let x, y;
+
+    if (edge === 0) { // Top
+        x = Math.random() * MAP_COLS;
+        y = -ZOMBIE_SIZE;
+    } else if (edge === 1) { // Right
+        x = MAP_COLS + ZOMBIE_SIZE;
+        y = Math.random() * MAP_ROWS;
+    } else if (edge === 2) { // Bottom
+        x = Math.random() * MAP_COLS;
+        y = MAP_ROWS + ZOMBIE_SIZE;
+    } else { // Left
+        x = -ZOMBIE_SIZE;
+        y = Math.random() * MAP_ROWS;
+    }
+
+    zombies.push({
+        x: x,
+        y: y,
+        health: MAX_ZOMBIE_HEALTH
+    });
+    zombieCount++;
+}
+
+// Player shoots a bullet
+function shoot(targetX, targetY) {
+    if (Date.now() - lastShotTime < SHOOT_COOLDOWN) return;
+
+    const angle = Math.atan2(targetY - player.y, targetX - player.x);
+    bullets.push({
+        x: player.x,
+        y: player.y,
+        dirX: Math.cos(angle),
+        dirY: Math.sin(angle)
+    });
+    lastShotTime = Date.now();
+    addMessage('¡Disparo!');
+}
+
+// Collect resources from a tile
+function collectResource(tileX, tileY) {
+    const tileType = gameMap[tileY][tileX];
+    if (tileType === MAP_TYPE.WOOD_RESOURCE) {
+        player.inventory.wood += 5;
+        gameMap[tileY][tileX] = MAP_TYPE.GRASS; // Resource is depleted
+        addMessage('Has recolectado 5 de madera.');
+    } else if (tileType === MAP_TYPE.METAL_RESOURCE) {
+        player.inventory.metal += 3;
+        gameMap[tileY][tileX] = MAP_TYPE.GRASS; // Resource is depleted
+        addMessage('Has recolectado 3 de metal.');
+    } else if (tileType === MAP_TYPE.RUIN) {
+        addMessage('Estas son ruinas. No hay recursos aquí.');
+        return false; // Did not collect anything
+    } else if (tileType === MAP_TYPE.SHELTER) {
+        addMessage('Este ya es tu refugio.');
+        return false;
+    } else if (tileType === MAP_TYPE.PET_SPAWN) {
+        addMessage('Parece un lugar especial... ¿quizás hay algo aquí?');
+        return false;
+    } else { // Grass or other
+        addMessage('No hay recursos para recolectar aquí.');
+        return false;
+    }
+    updateUI();
+    return true; // Successfully collected
+}
+
+// Build / Expand shelter
+function buildShelter() {
+    if (player.inventory.wood < SHELTER_BUILD_COST.wood || player.inventory.metal < SHELTER_BUILD_COST.metal) {
+        addMessage(`Necesitas ${SHELTER_BUILD_COST.wood} madera y ${SHELTER_BUILD_COST.metal} metal para construir.`);
+        return;
+    }
+    addMessage('Haz clic en el mapa donde quieras colocar el refugio.');
+    buildingShelter = true;
+}
+
+let buildingShelter = false; // Nuevo: indica si estamos en modo construcción
+
+// Initialize game state
+function initGame() {
+    player.health = 100;
+    score = 0;
+    player.inventory.wood = 0;
+    player.inventory.metal = 0;
+    player.x = MAP_COLS / 2;
+    player.y = MAP_ROWS / 2;
+    dx = 0;
+    dy = 0;
+    bullets.length = 0;
+    zombies.length = 0;
+    shelterTiles.clear();
+    pet = null;
+    petFound = false;
+    zombieCount = 0;
+    lastZombieSpawnTime = 0;
+    lastShotTime = 0;
+    lastPetAttackTime = 0;
+    messageLog.innerHTML = ''; // Clear message log
+
+    generateMap(MAP_ROWS, MAP_COLS);
+    updateUI();
+
+    startScreen.style.display = 'none';
+    gameOverScreen.style.display = 'none';
+    gameRunning = true;
+    lastFrameTime = performance.now(); // Initialize for delta time
+    animationFrameId = requestAnimationFrame(gameLoop); // Start game loop
+    addMessage('¡La aventura comienza! Busca recursos y construye tu refugio.');
+}
+
+// End game
+function endGame(reason) {
+    gameRunning = false;
+    cancelAnimationFrame(animationFrameId);
+    finalScoreDisplay.textContent = score;
+    gameOverReasonDisplay.textContent = reason;
+    gameOverScreen.style.display = 'flex';
+}
+
+// Main game loop
+function gameLoop(currentTime) {
+    if (!gameRunning) return;
+
+    const deltaTime = currentTime - lastFrameTime;
+    lastFrameTime = currentTime;
+
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Spawn zombies
+    if (currentTime - lastZombieSpawnTime > ZOMBIE_SPAWN_INTERVAL / (1 + score / 500)) { // Faster spawn with score
+        spawnZombie();
+        lastZombieSpawnTime = currentTime;
+    }
+
+    // Update game elements
+    updatePlayer(deltaTime);
+    updateBullets(deltaTime);
+    updateZombies(deltaTime);
+    updatePet(deltaTime); // Update pet position
+
+    // Handle collisions
+    handleBulletZombieCollisions();
+    handlePlayerZombieCollisions(deltaTime);
+    handlePetZombieCollisions(deltaTime);
+
+    // Draw all elements
+    drawMap();
+    drawPlayer();
+    bullets.forEach(drawBullet);
+    zombies.forEach(drawZombie);
+    if (pet) {
+        drawPet();
+    }
+
+    // Request next frame
+    animationFrameId = requestAnimationFrame(gameLoop);
+}
+
+// --- Event Listeners ---
+
+// Keyboard input for player movement
+window.addEventListener('keydown', (e) => {
+    if (!gameRunning) return;
+    keys[e.key.toLowerCase()] = true;
+
+    dx = 0;
+    dy = 0;
+    if (keys['arrowleft'] || keys['a']) dx = -1;
+    if (keys['arrowright'] || keys['d']) dx = 1;
+    if (keys['arrowup'] || keys['w']) dy = -1;
+    if (keys['arrowdown'] || keys['s']) dy = 1;
+
+    // Normalize diagonal movement speed (optional but good practice)
+    if (dx !== 0 && dy !== 0) {
+        const magnitude = Math.sqrt(dx * dx + dy * dy);
+        dx /= magnitude;
+        dy /= magnitude;
+    }
+});
+
+window.addEventListener('keyup', (e) => {
+    if (!gameRunning) return;
+    keys[e.key.toLowerCase()] = false;
+
+    // Reset dx/dy if key is released, unless other relevant keys are still pressed
+    dx = 0;
+    dy = 0;
+    if (keys['arrowleft'] || keys['a']) dx = -1;
+    if (keys['arrowright'] || keys['d']) dx = 1;
+    if (keys['arrowup'] || keys['w']) dy = -1;
+    if (keys['arrowdown'] || keys['s']) dy = 1;
+
+    if (dx !== 0 && dy !== 0) {
+        const magnitude = Math.sqrt(dx * dx + dy * dy);
+        dx /= magnitude;
+        dy /= magnitude;
+    }
+});
+
+// Mouse click for shooting/interacting
+canvas.addEventListener('mousedown', (e) => {
+    if (!gameRunning) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    const targetTileX = Math.floor(mouseX / TILE_SIZE);
+    const targetTileY = Math.floor(mouseY / TILE_SIZE);
+
+    // Calculate click distance from player
+    const distFromPlayer = Math.sqrt(
+        Math.pow(targetTileX - player.x, 2) +
+        Math.pow(targetTileY - player.y, 2)
+    );
+
+    if (e.button === 0) { // Left click (shoot)
+        shoot(targetTileX, targetTileY);
+    } else if (e.button === 2) { // Right click (collect resource/interact)
+        // Check if click is near player for collection
+        if (distFromPlayer < 2) { // Within 2 tiles of player
+             collectResource(targetTileX, targetTileY);
+        } else {
+             addMessage('Demasiado lejos para recolectar.');
+        }
+    }
+});
+
+// Prevent right-click context menu
+canvas.addEventListener('contextmenu', (e) => {
+    e.preventDefault();
+});
+
+// Button click listeners
+startButton.addEventListener('click', initGame);
+restartButton.addEventListener('click', initGame);
+buildButton.addEventListener('click', buildShelter);
+
+// Initial UI update and show start screen
+updateUI();
+    </script>
+</body>
+</html>
